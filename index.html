@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoodStream Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            width: 90%;
+            max-width: 600px;
+        }
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #334155;
+            background-color: #1e293b;
+            color: #fff;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .player-container {
+            width: 90%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>DoodStream Custom Player</h2>
+
+    <!-- Input Section -->
+    <div class="controls">
+        <input type="text" id="videoInput" placeholder="Enter DoodStream URL or Video ID">
+        <button onclick="playVideo()">Play Video</button>
+    </div>
+
+    <!-- Video Player -->
+    <div class="player-container">
+        <iframe id="doodPlayer" src="" allowfullscreen scrolling="no"></iframe>
+    </div>
+
+    <script>
+        function playVideo() {
+            let input = document.getElementById('videoInput').value.trim();
+            let iframe = document.getElementById('doodPlayer');
+            
+            if (!input) {
+                alert("Please enter a Video ID or URL!");
+                return;
+            }
+
+            // Extract Video ID if full URL is pasted
+            let videoId = input;
+            if (input.includes('/e/') || input.includes('/d/')) {
+                videoId = input.split('/').pop();
+            }
+
+            // Set Embed URL
+            iframe.src = "https://dood.to/e/" + videoId;
+        }
+    </script>
+
+</body>
+</html>
