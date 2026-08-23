@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DoodStream Player</title>
+    <title>DoodStream Custom Player</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -44,19 +44,25 @@
         button:hover {
             background-color: #1d4ed8;
         }
-        .player-container {
+        
+        /* Cropping Player Frame to Hide Logos */
+        .player-wrapper {
             width: 90%;
             max-width: 800px;
             aspect-ratio: 16 / 9;
-            background-color: #000;
+            position: relative;
+            overflow: hidden; /* Removes elements outside frame */
             border-radius: 10px;
-            overflow: hidden;
+            background-color: #000;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
         iframe {
             width: 100%;
-            height: 100%;
+            height: 118%; /* Increases height to push bottom logos out */
             border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
     </style>
 </head>
@@ -70,8 +76,8 @@
         <button onclick="playVideo()">Play Video</button>
     </div>
 
-    <!-- Video Player -->
-    <div class="player-container">
+    <!-- Video Player Container -->
+    <div class="player-wrapper">
         <iframe id="doodPlayer" src="" allowfullscreen scrolling="no"></iframe>
     </div>
 
@@ -98,3 +104,4 @@
 
 </body>
 </html>
+
