@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>StreamHub</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
@@ -57,7 +56,6 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .grid-movie{ cursor:pointer; width:100%; background: transparent; border: none; }
 .grid-poster{ width:100%; height:95px; object-fit:cover; background:#191c26; display:block; border-radius: 8px; }
 
-/* Actor Profile Styles - Increased Banner Size */
 .actor-profile-banner { position: relative; width: 100%; height: 200px; background: #191c26; overflow: hidden; }
 .actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
 .actor-profile-header { display: flex; align-items: center; gap: 16px; padding: 15px; background: transparent; border: none; text-align: left; position: relative; margin-top: -35px; margin-left: 5px; width: calc(100% - 10px); box-shadow: none; }
@@ -110,7 +108,7 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 </style>
 
-<!-- AGGRESSIVE AD BLOCKER FOR s.pemsrv.com -->
+<!-- AGGRESSIVE AD BLOCKER -->
 <script>
 (function() {
     const originalAppendChild = Element.prototype.appendChild;
@@ -166,7 +164,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
       <button onclick="openAdminSecretly()"><i class="fa-solid fa-gear"></i> Admin Panel</button>
     </div>
   </div>
-  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Red Edition</div>
+  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Telegram Edition</div>
 </div>
 
 <div class="section" style="padding-bottom: 5px;">
@@ -204,7 +202,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
   <div id="categoryGrid" class="grid-container"></div>
 </div>
 
-<!-- Actor Profile Page View (Clean & Increased Banner Size) -->
+<!-- Actor Profile Page View -->
 <div id="actorProfilePage" class="actor-profile-page">
   <div class="category-header">
     <button class="back-btn" onclick="closeActorProfilePage()">←</button>
@@ -255,7 +253,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 
 <div id="adminPanel" class="admin">
   <div class="adminHeader">
-    <h2>⚙️ Admin Panel</h2>
+    <h2>⚙️ Admin Panel (Telegram)</h2>
     <button class="deleteBtn" style="background:#272b3c; color:white;" onclick="closeAdmin()">✕ Close</button>
   </div>
   <div class="adminContent">
@@ -332,9 +330,9 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 </div>
 
 <script>
-const SUPABASE_URL = "https://vpkuposuvezk1gefplkb.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwa3Vwb3N1dmV6a2lnZWZwbGtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0Nzk0NjgsImV4cCI6MjEwMzA1NTQ2OH0.fkCTYyq3AVkvV8lsWZdAq3C1GmJVnFC8th_PcFpFV48";
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// --- TELEGRAM CONFIG ---
+const TELEGRAM_BOT_TOKEN = "8878341217:AAEiTji01PpHaqkCZFmhkDyTSzlC4iSGKCQ"; // Ikada mee bot token veyyandi
+const TELEGRAM_CHAT_ID = "7069951394";       // Ikada mee chat ID veyyandi
 
 let movies = JSON.parse(localStorage.getItem('offline_videos') || '[]');
 let performers = JSON.parse(localStorage.getItem('actors_list') || '[]');
@@ -347,28 +345,74 @@ renderPerformers();
 renderCategoriesBar();
 renderMovies();
 
+// Telegram nunchi data techukovadaniki function
 async function fetchFreshData(){
+  if(TELEGRAM_BOT_TOKEN === "YOUR_BOT_TOKEN_HERE") return;
   try {
-    const res = await db.from("videos").select("*").order("id", {ascending:false});
-    if(res.data && res.data.length > 0) {
-      movies = res.data;
-      localStorage.setItem('offline_videos', JSON.stringify(movies));
-    }
-  } catch(e){}
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`);
+    const data = await res.json();
+    if(data.ok && data.result) {
+      let fetchedMovies = [];
+      let fetchedActors = [];
+      
+      data.result.forEach(update => {
+        if(update.message && update.message.text) {
+          try {
+            const parsed = JSON.parse(update.message.text);
+            if(parsed.type === 'movie') {
+              // Duplicate avoid cheyadaniki check
+              if(!fetchedMovies.some(m => m.id === parsed.data.id)) {
+                fetchedMovies.push(parsed.data);
+              }
+            } else if(parsed.type === 'actor') {
+              if(!fetchedActors.some(a => a.id === parsed.data.id)) {
+                fetchedActors.push(parsed.data);
+              }
+            }
+          } catch(e){}
+        }
+      });
 
-  try {
-    const resP = await db.from("performers").select("*").order("id", {ascending:false});
-    if(resP.data && resP.data.length > 0) {
-      performers = resP.data;
-      localStorage.setItem('actors_list', JSON.stringify(performers));
+      if(fetchedMovies.length > 0) {
+        movies = fetchedMovies;
+        localStorage.setItem('offline_videos', JSON.stringify(movies));
+      }
+      if(fetchedActors.length > 0) {
+        performers = fetchedActors;
+        localStorage.setItem('actors_list', JSON.stringify(performers));
+      }
     }
-  } catch(e){}
+  } catch(e){ console.log("Telegram fetch error", e); }
 
   renderPerformers();
   renderCategoriesBar();
   renderMovies();
 }
 fetchFreshData();
+
+// Telegram ki data pampadaniki helper function
+async function sendDataToTelegram(type, dataObj) {
+  if(TELEGRAM_BOT_TOKEN === "YOUR_BOT_TOKEN_HERE") {
+    alert("Please configure Telegram Bot Token and Chat ID in script!");
+    return;
+  }
+  const payload = {
+    type: type,
+    data: dataObj
+  };
+  try {
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: JSON.stringify(payload)
+      })
+    });
+  } catch(e) {
+    console.log("Telegram send error", e);
+  }
+}
 
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -690,25 +734,23 @@ async function saveMovie(){
     });
   }
 
+  let movieObj = {};
   if(editId) {
     const index = movies.findIndex(m => m.id == editId);
     if(index !== -1) {
       movies[index] = { ...movies[index], title, file_code: fileCode, category, tags, actor, poster_url: posterUrl || movies[index].poster_url || movies[index].thumbnail_url };
+      movieObj = movies[index];
     }
-    try {
-      await db.from("videos").update({ title, file_code: fileCode, category, tags, actor, poster_url: posterUrl }).eq("id", editId);
-    } catch(e){}
     alert("✅ Video Updated!");
   } else {
-    const newObj = { id: Date.now(), title, file_code: fileCode, poster_url: posterUrl, category, tags, actor };
-    movies.unshift(newObj);
-    try {
-      await db.from("videos").insert([{ title, file_code: fileCode, poster_url: posterUrl, category, tags, actor }]);
-    } catch(e){}
+    movieObj = { id: Date.now(), title, file_code: fileCode, poster_url: posterUrl, category, tags, actor };
+    movies.unshift(movieObj);
     alert("✅ Video Added!");
   }
 
   localStorage.setItem('offline_videos', JSON.stringify(movies));
+  await sendDataToTelegram('movie', movieObj);
+
   resetVideoForm();
   renderCategoriesBar();
   renderMovies();
@@ -782,25 +824,23 @@ async function saveActor(){
     });
   }
 
+  let actorObj = {};
   if(editId) {
     const index = performers.findIndex(p => p.id == editId);
     if(index !== -1) {
       performers[index] = { ...performers[index], name, image_url: imageUrl || performers[index].image_url, banner_url: bannerUrl || performers[index].banner_url };
+      actorObj = performers[index];
     }
-    try {
-      await db.from("performers").update({ name, image_url: imageUrl, banner_url: bannerUrl }).eq("id", editId);
-    } catch(e){}
     alert("✅ Actor Updated!");
   } else {
-    const newActor = { id: Date.now(), name, image_url: imageUrl, banner_url: bannerUrl };
-    performers.unshift(newActor);
-    try {
-      await db.from("performers").insert([{ name, image_url: imageUrl, banner_url: bannerUrl }]);
-    } catch(e){}
+    actorObj = { id: Date.now(), name, image_url: imageUrl, banner_url: bannerUrl };
+    performers.unshift(actorObj);
     alert("✅ Actor Added!");
   }
 
   localStorage.setItem('actors_list', JSON.stringify(performers));
+  await sendDataToTelegram('actor', actorObj);
+
   resetActorForm();
   renderPerformers();
   renderAdmin();
@@ -883,18 +923,16 @@ function renderAdmin(){
   });
 }
 
-async function deleteMovie(id){
+function deleteMovie(id){
   if(!confirm("Delete video?")) return;
-  await db.from("videos").delete().eq("id", id);
   movies = movies.filter(m => m.id !== id);
   localStorage.setItem('offline_videos', JSON.stringify(movies));
   renderCategoriesBar();
   renderMovies();
 }
 
-async function deleteActor(id){
+function deleteActor(id){
   if(!confirm("Delete performer?")) return;
-  await db.from("performers").delete().eq("id", id);
   performers = performers.filter(p => p.id !== id);
   localStorage.setItem('actors_list', JSON.stringify(performers));
   renderPerformers();
@@ -1012,6 +1050,7 @@ function renderWatchlist(){
     return;
   }
   box.innerHTML = "";
+  watchlist.watchlist = watchlist || [];
   watchlist.forEach(m => {
     const item = document.createElement("div");
     item.className = "playlist-item";
