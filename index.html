@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +71,7 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .modalBox{ width:100%; max-width:600px; background:#13151c; border-radius:12px; overflow:hidden; position:relative; max-height:92vh; overflow-y:auto; border:1px solid #272b3c; margin-top: 10px; }
 .modalMediaContainer{ width:100%; aspect-ratio: 16/9; background:#000; position:relative; }
 .modalImage{ width:100%; height:100%; object-fit:cover; display:block; }
-.modalIframe{ width:100%; height:100%; border:0; display:none; }
+.modalIframe, .modalVideo{ width:100%; height:100%; border:0; display:none; position:absolute; inset:0; }
 .close-icon{ position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); color:white; border:0; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer; z-index:10; }
 .modalContent{ padding:16px; }
 .modalContent h2{ font-size:18px; margin-bottom:12px; }
@@ -183,7 +182,8 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
     <button class="close-icon" onclick="closeMovie()">✕</button>
     <div class="modalMediaContainer">
       <img id="modalImage" class="modalImage" src="">
-      <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen></iframe>
+      <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      <video id="modalVideoPlayer" class="modalVideo" controls autoplay></video>
     </div>
     <div class="modalContent">
       <h2 id="modalTitle"></h2>
@@ -218,7 +218,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
       <div id="secMovie" class="accordion-body">
         <input type="hidden" id="editMovieId">
         <div class="group"><label>Video Title</label><input id="movieTitle" placeholder="Title"></div>
-        <div class="group"><label>StreamTape Link / Embed Code / ID</label><input id="movieLink" placeholder="Paste link or ID here..."></div>
+        <div class="group"><label>Any Link / Embed Code / StreamTape / YouTube / MP4 Link</label><input id="movieLink" placeholder="Paste link, embed code or URL here..."></div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
         <div class="group"><label>Actor Name</label><input id="movieActor" placeholder="Actor/Performer Name"></div>
@@ -227,7 +227,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
           <input id="movieImage" type="file" accept="image/*">
           <img id="preview" class="preview">
         </div>
-        <button id="videoSubmitBtn" class="addBtn" onclick="saveMovie()">Save Video & Sync Telegram</button>
+        <button id="videoSubmitBtn" class="addBtn" onclick="saveMovie()">Save Video</button>
         <button id="videoCancelBtn" class="cancelBtn" onclick="resetVideoForm()">Cancel Edit</button>
       </div>
     </div>
@@ -253,7 +253,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
           <img id="actorBannerPreview" class="preview">
         </div>
 
-        <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor & Sync Telegram</button>
+        <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor</button>
         <button id="actorCancelBtn" class="cancelBtn" onclick="resetActorForm()">Cancel Edit</button>
       </div>
     </div>
@@ -282,9 +282,6 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 </div>
 
 <script>
-const BOT_TOKEN = "8878341217:AAEiTji01PpHaqkCZFmhkDyTSzlC4iSGKCQ";
-const CHAT_ID = "-1004321136079";
-
 let movies = JSON.parse(localStorage.getItem('local_videos') || '[]');
 let performers = JSON.parse(localStorage.getItem('local_performers') || '[]');
 let selectedMovie = null;
@@ -333,14 +330,36 @@ function toggleAccordion(bodyId, iconId){
   }
 }
 
-function parseStreamtapeId(input) {
-  if (!input) return '';
+function processVideoLink(input) {
+  if (!input) return { type: 'iframe', url: '' };
   let target = input.trim();
+
   const srcMatch = target.match(/src=["']([^"']+)["']/);
   if (srcMatch) target = srcMatch[1];
-  const match = target.match(/(?:streamtape\.(?:com|to|net|cc|site|xyz)\/(?:v|e)\/)([a-zA-Z0-9]+)/);
-  if (match && match[1]) return match[1];
-  return target.split('/')[0].trim();
+
+  if (target.match(/\.(mp4|webm|ogg|m3u8)(\?.*)?$/i) || target.startsWith("blob:")) {
+    return { type: 'video', url: target };
+  }
+
+  let ytMatch = target.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+  if (ytMatch && ytMatch[1]) {
+    return { type: 'iframe', url: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1` };
+  }
+
+  let stMatch = target.match(/(?:streamtape\.(?:com|to|net|cc|site|xyz)\/(?:v|e)\/)([a-zA-Z0-9]+)/);
+  if (stMatch && stMatch[1]) {
+    return { type: 'iframe', url: `https://streamtape.to/e/${stMatch[1]}` };
+  }
+
+  if (target.startsWith("http://") || target.startsWith("https://")) {
+    return { type: 'iframe', url: target };
+  }
+
+  if (/^[a-zA-Z0-9]{10,25}$/.test(target)) {
+    return { type: 'iframe', url: `https://streamtape.to/e/${target}` };
+  }
+
+  return { type: 'iframe', url: target };
 }
 
 document.getElementById("movieImage").addEventListener("change", function(){
@@ -591,15 +610,14 @@ function escapeHTML(text){
 async function saveMovie(){
   const editId = document.getElementById("editMovieId").value;
   const title = document.getElementById("movieTitle").value.trim();
-  const codeInput = document.getElementById("movieLink").value.trim();
+  const rawLink = document.getElementById("movieLink").value.trim();
   const category = document.getElementById("movieCategory").value.trim() || "General";
   const tags = document.getElementById("movieTags").value.trim();
   const actor = document.getElementById("movieActor").value.trim();
   const file = document.getElementById("movieImage").files[0];
 
-  if(!title || !codeInput) return alert("Title and Code/Link required!");
+  if(!title || !rawLink) return alert("Title and Link required!");
 
-  const fileCode = parseStreamtapeId(codeInput);
   let posterUrl = document.getElementById("preview").src;
   if(!posterUrl || posterUrl === window.location.href) posterUrl = "";
 
@@ -612,18 +630,12 @@ async function saveMovie(){
   }
 
   if(editId) {
-    movies = movies.map(m => m.id == editId ? { ...m, title, file_code: fileCode, category, tags, actor, poster_url: posterUrl } : m);
-    alert("✅ Video Updated!");
+    movies = movies.map(m => m.id == editId ? { ...m, title, file_code: rawLink, category, tags, actor, poster_url: posterUrl } : m);
+    alert("✅ Video Updated Successfully!");
   } else {
-    const newMovie = { id: Date.now(), title, file_code: fileCode, poster_url: posterUrl, category, tags, actor };
+    const newMovie = { id: Date.now(), title, file_code: rawLink, poster_url: posterUrl, category, tags, actor };
     movies.unshift(newMovie);
-    
-    const text = `🚀 New Video Added!\n\n📌 Title: ${title}\n📂 Category: ${category}\n🔗 Link: https://streamtape.to/v/${fileCode}`;
-    try {
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=` + encodeURIComponent(text));
-    } catch(e) {}
-
-    alert("✅ Video Added & Synced to Telegram!");
+    alert("✅ Video Added Successfully!");
   }
 
   localStorage.setItem('local_videos', JSON.stringify(movies));
@@ -665,7 +677,7 @@ function resetVideoForm() {
   document.getElementById("movieImage").value = "";
   document.getElementById("preview").style.display = "none";
   document.getElementById("videoFormTitle").textContent = "🎬 Add Video Entry";
-  document.getElementById("videoSubmitBtn").textContent = "Save Video & Sync Telegram";
+  document.getElementById("videoSubmitBtn").textContent = "Save Video";
   document.getElementById("videoCancelBtn").style.display = "none";
 }
 
@@ -701,17 +713,11 @@ async function saveActor(){
 
   if(editId) {
     performers = performers.map(p => p.id == editId ? { ...p, name, image_url: imageUrl, banner_url: bannerUrl } : p);
-    alert("✅ Actor Updated!");
+    alert("✅ Actor Updated Successfully!");
   } else {
     const newActor = { id: Date.now(), name, image_url: imageUrl, banner_url: bannerUrl };
     performers.unshift(newActor);
-
-    const text = `👤 New Performer / Actor Added!\n\n🌟 Name: ${name}`;
-    try {
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=` + encodeURIComponent(text));
-    } catch(e) {}
-
-    alert("✅ Actor Added & Synced to Telegram!");
+    alert("✅ Actor Added Successfully!");
   }
 
   localStorage.setItem('local_performers', JSON.stringify(performers));
@@ -752,7 +758,7 @@ function resetActorForm() {
   document.getElementById("actorPreview").style.display = "none";
   document.getElementById("actorBannerPreview").style.display = "none";
   document.getElementById("actorFormTitle").textContent = "👤 Add Actor / Performer";
-  document.getElementById("actorSubmitBtn").textContent = "Save Actor & Sync Telegram";
+  document.getElementById("actorSubmitBtn").textContent = "Save Actor";
   document.getElementById("actorCancelBtn").style.display = "none";
 }
 
@@ -815,9 +821,14 @@ function openMovie(movie){
   document.getElementById("modalTitle").textContent = movie.title;
   const imgElement = document.getElementById("modalImage");
   const iframeElement = document.getElementById("modalTrailerFrame");
+  const videoPlayer = document.getElementById("modalVideoPlayer");
 
   iframeElement.style.display = "none";
   iframeElement.src = "";
+  videoPlayer.style.display = "none";
+  videoPlayer.pause();
+  videoPlayer.src = "";
+
   imgElement.style.display = "block";
   imgElement.src = movie.poster_url || movie.thumbnail_url || "";
 
@@ -857,25 +868,33 @@ function openActorProfileFromModal(){
 
 function handleWatchClick(){
   if(!selectedMovie) return;
-  const cleanCode = parseStreamtapeId(selectedMovie.file_code);
-  const embedUrl = `https://streamtape.to/e/${cleanCode}`;
+  const handled = processVideoLink(selectedMovie.file_code);
 
   document.getElementById("modalImage").style.display = "none";
-  const iframeElement = document.getElementById("modalTrailerFrame");
-  iframeElement.style.display = "block";
-  iframeElement.src = embedUrl;
+
+  if (handled.type === 'video') {
+    const videoPlayer = document.getElementById("modalVideoPlayer");
+    videoPlayer.style.display = "block";
+    videoPlayer.src = handled.url;
+    videoPlayer.play();
+  } else {
+    const iframeElement = document.getElementById("modalTrailerFrame");
+    iframeElement.style.display = "block";
+    iframeElement.src = handled.url;
+  }
 }
 
 function closeMovie(){ 
   document.getElementById("movieModal").style.display = "none"; 
   document.getElementById("modalTrailerFrame").src = "";
+  const videoPlayer = document.getElementById("modalVideoPlayer");
+  videoPlayer.pause();
+  videoPlayer.src = "";
 }
 
 function shareVideo(){
   if(!selectedMovie) return;
-  const cleanCode = parseStreamtapeId(selectedMovie.file_code);
-  const shareLink = `https://streamtape.to/v/${cleanCode}`;
-  navigator.clipboard.writeText(shareLink);
+  navigator.clipboard.writeText(selectedMovie.file_code);
   alert("🔗 Video link copied to clipboard!");
 }
 
@@ -991,4 +1010,3 @@ document.addEventListener("click", function(e){
 </script>
 </body>
 </html>
-
