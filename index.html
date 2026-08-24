@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>StreamHub</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
@@ -15,9 +16,11 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .search-container{ position:relative; width:45%; max-width:260px; }
 .search{ width:100%; padding:8px 12px 8px 34px; border-radius:20px; border:1px solid #272b3c; background:#191c26; color:white; outline:none; font-size:12px; }
 .search-container i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c7285; font-size: 11px; }
-.suggestions-box { position:absolute; top:45px; left:0; width:100%; background:#13151c; border:1px solid #272b3c; border-radius:10px; max-height:200px; overflow-y:auto; z-index:1000; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.5); }
-.suggestion-item { padding:10px 12px; border-bottom:1px solid #1f222e; cursor:pointer; font-size:12px; color:#e1e4ed; }
+.suggestions-box { position:absolute; top:45px; left:0; width:100%; background:#13151c; border:1px solid #272b3c; border-radius:10px; max-height:250px; overflow-y:auto; z-index:1000; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.5); }
+.suggestion-item { padding:10px 12px; border-bottom:1px solid #1f222e; cursor:pointer; font-size:12px; color:#e1e4ed; display:flex; align-items:center; gap:8px; }
 .suggestion-item:hover { background:#e50914; color:white; font-weight:bold; }
+.suggestion-item i { color: #a0a6b8; width: 14px; text-align: center; }
+.suggestion-item:hover i { color: white; }
 .menuBtn{ border:1px solid #272b3c; background:#191c26; color:white; padding:8px 12px; border-radius:8px; font-size:16px; cursor:pointer; }
 .sidebar{ position:fixed; top:0; left:-280px; width:260px; height:100%; background:#13151c; border-right:1px solid #1f222e; z-index:300; transition:left 0.3s ease; padding:20px; display:flex; flex-direction:column; justify-content:space-between; overflow-y:auto; }
 .sidebar.active{ left:0; }
@@ -56,6 +59,7 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .grid-movie{ cursor:pointer; width:100%; background: transparent; border: none; }
 .grid-poster{ width:100%; height:95px; object-fit:cover; background:#191c26; display:block; border-radius: 8px; }
 
+/* Actor Profile Styles */
 .actor-profile-banner { position: relative; width: 100%; height: 200px; background: #191c26; overflow: hidden; }
 .actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
 .actor-profile-header { display: flex; align-items: center; gap: 16px; padding: 15px; background: transparent; border: none; text-align: left; position: relative; margin-top: -35px; margin-left: 5px; width: calc(100% - 10px); box-shadow: none; }
@@ -107,35 +111,6 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .deleteBtn{ background:#e50914; color:white; border:0; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px; }
 footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 </style>
-
-<!-- AGGRESSIVE AD BLOCKER -->
-<script>
-(function() {
-    const originalAppendChild = Element.prototype.appendChild;
-    Element.prototype.appendChild = function(element) {
-        if (element && element.src && element.src.includes('s.pemsrv.com')) {
-            return element;
-        }
-        return originalAppendChild.apply(this, arguments);
-    };
-
-    const originalOpen = window.open;
-    window.open = function(url, name, features) {
-        if (url && typeof url === 'string' && url.includes('s.pemsrv.com')) {
-            return null;
-        }
-        return originalOpen.apply(this, arguments);
-    };
-
-    document.addEventListener('click', function(e) {
-        let target = e.target.closest('a');
-        if (target && target.href && target.href.includes('s.pemsrv.com')) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-    }, true);
-})();
-</script>
 </head>
 
 <body>
@@ -144,7 +119,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
   <div class="logo" onclick="showAllHomeMovies()">stream<span>hub</span></div>
   <div class="search-container">
     <i class="fa-solid fa-magnifying-glass"></i>
-    <input id="search" class="search" placeholder="Search videos..." autocomplete="off">
+    <input id="search" class="search" placeholder="Search videos, actors, categories..." autocomplete="off">
     <div id="suggestions" class="suggestions-box"></div>
   </div>
   <button class="menuBtn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
@@ -164,7 +139,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
       <button onclick="openAdminSecretly()"><i class="fa-solid fa-gear"></i> Admin Panel</button>
     </div>
   </div>
-  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Telegram Edition</div>
+  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Red Edition</div>
 </div>
 
 <div class="section" style="padding-bottom: 5px;">
@@ -253,7 +228,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 
 <div id="adminPanel" class="admin">
   <div class="adminHeader">
-    <h2>⚙️ Admin Panel (Telegram)</h2>
+    <h2>⚙️ Admin Panel</h2>
     <button class="deleteBtn" style="background:#272b3c; color:white;" onclick="closeAdmin()">✕ Close</button>
   </div>
   <div class="adminContent">
@@ -275,7 +250,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
           <input id="movieImage" type="file" accept="image/*">
           <img id="preview" class="preview">
         </div>
-        <button id="videoSubmitBtn" class="addBtn" onclick="saveMovie()">Save Video</button>
+        <button id="videoSubmitBtn" class="addBtn" onclick="saveMovie()">Save Video & Sync Telegram</button>
         <button id="videoCancelBtn" class="cancelBtn" onclick="resetVideoForm()">Cancel Edit</button>
       </div>
     </div>
@@ -301,7 +276,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
           <img id="actorBannerPreview" class="preview">
         </div>
 
-        <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor</button>
+        <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor & Sync Telegram</button>
         <button id="actorCancelBtn" class="cancelBtn" onclick="resetActorForm()">Cancel Edit</button>
       </div>
     </div>
@@ -330,9 +305,12 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 </div>
 
 <script>
-// --- TELEGRAM CONFIG ---
-const TELEGRAM_BOT_TOKEN = "7953267794:AAFs0Q6Yt9KThL_Wl8q_68tV8lV3o9Jk5g0"; // Mee Bot Token ikada undi
-const TELEGRAM_CHAT_ID = "-1004321136079";                           // Channel ID ikada set chesamu
+const SUPABASE_URL = "https://vpkuposuvezk1gefplkb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZwa3Vwb3N1dmV6a2lnZWZwbGtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc0Nzk0NjgsImV4cCI6MjEwMzA1NTQ2OH0.fkCTYyq3AVkvV8lsWZdAq3C1GmJVnFC8th_PcFpFV48";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const BOT_TOKEN = "8878341217:AAEiTji01PpHaqkCZFmhkDyTSzlC4iSGKCQ";
+const CHAT_ID = "-1004321136079";
 
 let movies = JSON.parse(localStorage.getItem('offline_videos') || '[]');
 let performers = JSON.parse(localStorage.getItem('actors_list') || '[]');
@@ -346,71 +324,27 @@ renderCategoriesBar();
 renderMovies();
 
 async function fetchFreshData(){
-  if(!TELEGRAM_BOT_TOKEN) return;
   try {
-    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getUpdates`);
-    const data = await res.json();
-    if(data.ok && data.result) {
-      let fetchedMovies = [];
-      let fetchedActors = [];
-      
-      data.result.forEach(update => {
-        let msgText = "";
-        if(update.message && update.message.text) msgText = update.message.text;
-        else if(update.channel_post && update.channel_post.text) msgText = update.channel_post.text;
-
-        if(msgText) {
-          try {
-            const parsed = JSON.parse(msgText);
-            if(parsed.type === 'movie') {
-              if(!fetchedMovies.some(m => m.id === parsed.data.id)) {
-                fetchedMovies.push(parsed.data);
-              }
-            } else if(parsed.type === 'actor') {
-              if(!fetchedActors.some(a => a.id === parsed.data.id)) {
-                fetchedActors.push(parsed.data);
-              }
-            }
-          } catch(e){}
-        }
-      });
-
-      if(fetchedMovies.length > 0) {
-        movies = fetchedMovies;
-        localStorage.setItem('offline_videos', JSON.stringify(movies));
-      }
-      if(fetchedActors.length > 0) {
-        performers = fetchedActors;
-        localStorage.setItem('actors_list', JSON.stringify(performers));
-      }
+    const res = await db.from("videos").select("*").order("id", {ascending:false});
+    if(res.data && res.data.length > 0) {
+      movies = res.data;
+      localStorage.setItem('offline_videos', JSON.stringify(movies));
     }
-  } catch(e){ console.log("Telegram fetch error", e); }
+  } catch(e){}
+
+  try {
+    const resP = await db.from("performers").select("*").order("id", {ascending:false});
+    if(resP.data && resP.data.length > 0) {
+      performers = resP.data;
+      localStorage.setItem('actors_list', JSON.stringify(performers));
+    }
+  } catch(e){}
 
   renderPerformers();
   renderCategoriesBar();
   renderMovies();
 }
 fetchFreshData();
-
-async function sendDataToTelegram(type, dataObj) {
-  if(!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) return;
-  const payload = {
-    type: type,
-    data: dataObj
-  };
-  try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: JSON.stringify(payload)
-      })
-    });
-  } catch(e) {
-    console.log("Telegram send error", e);
-  }
-}
 
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -620,7 +554,8 @@ function openFilteredPage(queryValue){
     const cat = (m.category || "").toLowerCase();
     const title = (m.title || "").toLowerCase();
     const tags = (m.tags || "").toLowerCase();
-    return cat === qLower || title.includes(qLower) || tags.includes(qLower);
+    const actor = (m.actor || "").toLowerCase();
+    return cat === qLower || title.includes(qLower) || tags.includes(qLower) || actor.includes(qLower);
   });
 
   filteredItems.forEach(movie => {
@@ -732,23 +667,31 @@ async function saveMovie(){
     });
   }
 
-  let movieObj = {};
   if(editId) {
     const index = movies.findIndex(m => m.id == editId);
     if(index !== -1) {
       movies[index] = { ...movies[index], title, file_code: fileCode, category, tags, actor, poster_url: posterUrl || movies[index].poster_url || movies[index].thumbnail_url };
-      movieObj = movies[index];
     }
+    try {
+      await db.from("videos").update({ title, file_code: fileCode, category, tags, actor, poster_url: posterUrl }).eq("id", editId);
+    } catch(e){}
     alert("✅ Video Updated!");
   } else {
-    movieObj = { id: Date.now(), title, file_code: fileCode, poster_url: posterUrl, category, tags, actor };
-    movies.unshift(movieObj);
-    alert("✅ Video Added!");
+    const newObj = { id: Date.now(), title, file_code: fileCode, poster_url: posterUrl, category, tags, actor };
+    movies.unshift(newObj);
+    try {
+      await db.from("videos").insert([{ id: newObj.id, title, file_code: fileCode, poster_url: posterUrl, category, tags, actor }]);
+    } catch(e){}
+    
+    const text = `🚀 New Video Added!\n\n📌 Title: ${title}\n📂 Category: ${category}\n🔗 Link: https://streamtape.to/v/${fileCode}`;
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=` + encodeURIComponent(text));
+    } catch(e) {}
+
+    alert("✅ Video Added & Synced to Telegram!");
   }
 
   localStorage.setItem('offline_videos', JSON.stringify(movies));
-  await sendDataToTelegram('movie', movieObj);
-
   resetVideoForm();
   renderCategoriesBar();
   renderMovies();
@@ -788,7 +731,7 @@ function resetVideoForm() {
   document.getElementById("movieImage").value = "";
   document.getElementById("preview").style.display = "none";
   document.getElementById("videoFormTitle").textContent = "🎬 Add Video Entry";
-  document.getElementById("videoSubmitBtn").textContent = "Save Video";
+  document.getElementById("videoSubmitBtn").textContent = "Save Video & Sync Telegram";
   document.getElementById("videoCancelBtn").style.display = "none";
 }
 
@@ -822,23 +765,31 @@ async function saveActor(){
     });
   }
 
-  let actorObj = {};
   if(editId) {
     const index = performers.findIndex(p => p.id == editId);
     if(index !== -1) {
       performers[index] = { ...performers[index], name, image_url: imageUrl || performers[index].image_url, banner_url: bannerUrl || performers[index].banner_url };
-      actorObj = performers[index];
     }
+    try {
+      await db.from("performers").update({ name, image_url: imageUrl, banner_url: bannerUrl }).eq("id", editId);
+    } catch(e){}
     alert("✅ Actor Updated!");
   } else {
-    actorObj = { id: Date.now(), name, image_url: imageUrl, banner_url: bannerUrl };
-    performers.unshift(actorObj);
-    alert("✅ Actor Added!");
+    const newActor = { id: Date.now(), name, image_url: imageUrl, banner_url: bannerUrl };
+    performers.unshift(newActor);
+    try {
+      await db.from("performers").insert([{ id: newActor.id, name, image_url: imageUrl, banner_url: bannerUrl }]);
+    } catch(e){}
+
+    const text = `👤 New Performer / Actor Added!\n\n🌟 Name: ${name}`;
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=` + encodeURIComponent(text));
+    } catch(e) {}
+
+    alert("✅ Actor Added & Synced to Telegram!");
   }
 
   localStorage.setItem('actors_list', JSON.stringify(performers));
-  await sendDataToTelegram('actor', actorObj);
-
   resetActorForm();
   renderPerformers();
   renderAdmin();
@@ -877,7 +828,7 @@ function resetActorForm() {
   document.getElementById("actorPreview").style.display = "none";
   document.getElementById("actorBannerPreview").style.display = "none";
   document.getElementById("actorFormTitle").textContent = "👤 Add Actor / Performer";
-  document.getElementById("actorSubmitBtn").textContent = "Save Actor";
+  document.getElementById("actorSubmitBtn").textContent = "Save Actor & Sync Telegram";
   document.getElementById("actorCancelBtn").style.display = "none";
 }
 
@@ -921,16 +872,18 @@ function renderAdmin(){
   });
 }
 
-function deleteMovie(id){
+async function deleteMovie(id){
   if(!confirm("Delete video?")) return;
+  await db.from("videos").delete().eq("id", id);
   movies = movies.filter(m => m.id !== id);
   localStorage.setItem('offline_videos', JSON.stringify(movies));
   renderCategoriesBar();
   renderMovies();
 }
 
-function deleteActor(id){
+async function deleteActor(id){
   if(!confirm("Delete performer?")) return;
+  await db.from("performers").delete().eq("id", id);
   performers = performers.filter(p => p.id !== id);
   localStorage.setItem('actors_list', JSON.stringify(performers));
   renderPerformers();
@@ -1102,23 +1055,86 @@ document.getElementById("search").addEventListener("input", function(){
   const q = this.value.toLowerCase().trim();
   const sugBox = document.getElementById("suggestions");
   sugBox.innerHTML = "";
+  
   if(!q){
     sugBox.style.display = "none";
     return;
   }
-  const matches = movies.filter(movie => movie.title.toLowerCase().includes(q));
-  if(matches.length > 0){
-    sugBox.style.display = "block";
-    matches.forEach(movie => {
+
+  let resultsCount = 0;
+
+  performers.forEach(p => {
+    if(p.name.toLowerCase().includes(q)) {
+      resultsCount++;
       const item = document.createElement("div");
       item.className = "suggestion-item";
-      item.textContent = movie.title;
+      item.innerHTML = `<i class="fa-solid fa-user"></i> <span>Actor: <b>${escapeHTML(p.name)}</b></span>`;
       item.onclick = function(){
-        openMovie(movie);
         sugBox.style.display = "none";
+        document.getElementById("search").value = "";
+        openActorProfile(p.name);
       };
       sugBox.appendChild(item);
-    });
+    }
+  });
+
+  let uniqueCategories = [...new Set(movies.map(m => m.category ? m.category.trim() : ""))].filter(Boolean);
+  uniqueCategories.forEach(cat => {
+    if(cat.toLowerCase().includes(q)) {
+      resultsCount++;
+      const item = document.createElement("div");
+      item.className = "suggestion-item";
+      item.innerHTML = `<i class="fa-solid fa-folder"></i> <span>Category: <b>${escapeHTML(cat)}</b></span>`;
+      item.onclick = function(){
+        sugBox.style.display = "none";
+        document.getElementById("search").value = "";
+        openFilteredPage(cat);
+      };
+      sugBox.appendChild(item);
+    }
+  });
+
+  let uniqueTags = [];
+  movies.forEach(m => {
+    if(m.tags) {
+      m.tags.split(',').forEach(t => {
+        let clean = t.trim();
+        if(clean && !uniqueTags.includes(clean)) uniqueTags.push(clean);
+      });
+    }
+  });
+  uniqueTags.forEach(tag => {
+    if(tag.toLowerCase().includes(q)) {
+      resultsCount++;
+      const item = document.createElement("div");
+      item.className = "suggestion-item";
+      item.innerHTML = `<i class="fa-solid fa-tag"></i> <span>Tag: <b>${escapeHTML(tag)}</b></span>`;
+      item.onclick = function(){
+        sugBox.style.display = "none";
+        document.getElementById("search").value = "";
+        filterByTag(tag);
+      };
+      sugBox.appendChild(item);
+    }
+  });
+
+  movies.forEach(movie => {
+    if(movie.title.toLowerCase().includes(q)) {
+      resultsCount++;
+      const item = document.createElement("div");
+      item.className = "suggestion-item";
+      item.innerHTML = `<i class="fa-solid fa-video"></i> <span>Video: <b>${escapeHTML(movie.title)}</b></span>`;
+      item.onclick = function(){
+        sugBox.style.display = "none";
+        document.getElementById("search").value = "";
+        openMovie(movie);
+      };
+      sugBox.appendChild(item);
+    }
+  });
+
+  if(resultsCount > 0){
+    sugBox.style.display = "block";
   } else {
     sugBox.style.display = "none";
   }
@@ -1140,4 +1156,5 @@ document.addEventListener("click", function(e){
 </script>
 </body>
 </html>
+
 
