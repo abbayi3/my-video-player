@@ -3,145 +3,319 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>StreamHub</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<title>StreamHub - Glassmorphism Edition</title>
 
 <style>
-*{ box-sizing:border-box; margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important; }
-body{ background:#0d0e12; color:#e1e4ed; }
-header{ height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; background:#13151c; border-bottom:1px solid #1f222e; position:sticky; top:0; z-index:50; }
-.logo{ font-size:22px; font-weight:900; color:white; letter-spacing:-1px; cursor:pointer; }
-.logo span{ color:#e50914; }
-.search-container{ position:relative; width:45%; max-width:260px; }
-.search{ width:100%; padding:8px 12px 8px 34px; border-radius:20px; border:1px solid #272b3c; background:#191c26; color:white; outline:none; font-size:12px; }
-.search-container i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6c7285; font-size: 11px; }
-.suggestions-box { position:absolute; top:45px; left:0; width:100%; background:#13151c; border:1px solid #272b3c; border-radius:10px; max-height:250px; overflow-y:auto; z-index:1000; display:none; box-shadow:0 4px 10px rgba(0,0,0,0.5); }
-.suggestion-item { padding:10px 12px; border-bottom:1px solid #1f222e; cursor:pointer; font-size:12px; color:#e1e4ed; display:flex; align-items:center; gap:8px; }
-.suggestion-item:hover { background:#e50914; color:white; font-weight:bold; }
-.suggestion-item i { color: #a0a6b8; width: 14px; text-align: center; }
-.suggestion-item:hover i { color: white; }
-.menuBtn{ border:1px solid #272b3c; background:#191c26; color:white; padding:8px 12px; border-radius:8px; font-size:16px; cursor:pointer; }
-.sidebar{ position:fixed; top:0; left:-280px; width:260px; height:100%; background:#13151c; border-right:1px solid #1f222e; z-index:300; transition:left 0.3s ease; padding:20px; display:flex; flex-direction:column; justify-content:space-between; overflow-y:auto; }
+:root {
+  --bg-gradient: linear-gradient(135deg, #0f172a 0%, #070a12 100%);
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-header: rgba(15, 23, 42, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --text-color: #f1f5f9;
+  --subtext-color: #94a3b8;
+  --accent-color: #e50914;
+}
+
+[data-theme="light"] {
+  --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-header: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --text-color: #0f172a;
+  --subtext-color: #475569;
+  --accent-color: #e50914;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
+
+body{ 
+  background: var(--bg-gradient); 
+  background-attachment: fixed;
+  color: var(--text-color); 
+  min-height: 100vh;
+  transition: all 0.3s ease; 
+}
+
+/* Glassmorphism Header */
+header{ 
+  height:65px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  padding:0 14px; 
+  background: var(--glass-header); 
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border); 
+  position:sticky; 
+  top:0; 
+  z-index:50; 
+  box-shadow: var(--glass-shadow);
+}
+
+.logo{ font-size:22px; font-weight:900; color:var(--text-color); letter-spacing:-1px; cursor:pointer; }
+.logo span{ color:var(--accent-color); }
+
+.header-actions { display: flex; align-items: center; gap: 8px; }
+
+.theme-toggle-btn, .menuBtn { 
+  background: var(--glass-bg); 
+  border: 1px solid var(--glass-border); 
+  color: var(--text-color); 
+  padding: 8px 12px; 
+  border-radius: 12px; 
+  font-size: 14px; 
+  cursor: pointer; 
+  backdrop-filter: blur(8px);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.theme-toggle-btn:active, .menuBtn:active { transform: scale(0.92); }
+
+.search-container{ position:relative; width:40%; max-width:220px; }
+
+.search{ 
+  width:100%; 
+  padding:8px 12px 8px 32px; 
+  border-radius:20px; 
+  border:1px solid var(--glass-border); 
+  background:var(--glass-bg); 
+  color:var(--text-color); 
+  outline:none; 
+  font-size:12px; 
+  backdrop-filter: blur(10px);
+}
+
+.search-icon-inside { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; }
+
+.suggestions-box { 
+  position:absolute; 
+  top:48px; 
+  left:0; 
+  width:100%; 
+  background:var(--glass-header); 
+  border:1px solid var(--glass-border); 
+  border-radius:14px; 
+  max-height:250px; 
+  overflow-y:auto; 
+  z-index:1000; 
+  display:none; 
+  backdrop-filter: blur(20px);
+  box-shadow: var(--glass-shadow); 
+}
+
+.suggestion-item { padding:10px 12px; border-bottom:1px solid var(--glass-border); cursor:pointer; font-size:12px; color:var(--text-color); display:flex; align-items:center; gap:8px; }
+.suggestion-item:hover { background:var(--accent-color); color:white; font-weight:bold; }
+
+/* Sidebar */
+.sidebar{ 
+  position:fixed; 
+  top:0; 
+  left:-290px; 
+  width:270px; 
+  height:100%; 
+  background:var(--glass-header); 
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-right:1px solid var(--glass-border); 
+  z-index:300; 
+  transition: left 0.3s ease; 
+  padding:20px; 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:space-between; 
+}
 .sidebar.active{ left:0; }
-.sidebar-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:299; display:none; }
-.sidebar-header{ display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1f222e; padding-bottom:15px; margin-bottom:15px; }
-.sidebar-menu-list button{ width:100%; text-align:left; background:none; border:none; color:#a0a6b8; padding:12px 10px; border-radius:8px; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:0.2s; }
-.sidebar-menu-list button:hover{ background:#e50914; color:white; font-weight:bold; }
+.sidebar-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index:299; display:none; }
+
+.sidebar-header{ display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--glass-border); padding-bottom:15px; margin-bottom:15px; }
+.sidebar-menu-list button{ width:100%; text-align:left; background:none; border:none; color:var(--subtext-color); padding:12px 10px; border-radius:10px; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:0.3s ease; }
+.sidebar-menu-list button:hover{ background:var(--accent-color); color:white; font-weight:bold; }
+
+/* Tags Row (Top) */
+.categories-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0; }
+.categories-row::-webkit-scrollbar { display: none; }
+.badge { 
+  background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-color); font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(10px); 
+}
+.badge.active, .badge:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+
+/* Promotional Banner Ad Section */
+.promo-banner-container {
+  padding: 10px 14px;
+  width: 100%;
+}
+.promo-banner {
+  width: 100%;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  cursor: pointer;
+  background: var(--glass-bg);
+}
+.promo-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.promo-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fbbf24;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  z-index: 5;
+}
+
+/* Performers Row */
 .performers-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 15px; scrollbar-width: none; }
 .performers-row::-webkit-scrollbar { display: none; }
 .performer-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
-.avatar-box { width: 60px; height: 60px; border-radius: 50%; border: 2px solid #e50914; background: #191c26; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.avatar-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.performer-name { font-size: 10px; color: #a0a6b8; max-width: 65px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-.categories-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; scrollbar-width: none; flex-shrink: 0; }
-.categories-row::-webkit-scrollbar { display: none; }
-.badge { background: #191c26; border: 1px solid #272b3c; color: #c2c7d6; font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 16px; white-space: nowrap; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
-.badge.active, .badge:hover { background: #e50914; border-color: #e50914; color: #fff; font-weight: bold; }
+
+.avatar-box { 
+  width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color); background: var(--glass-bg); display: flex; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); 
+}
+.avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+.performer-name { font-size: 10px; color: var(--subtext-color); max-width: 65px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+
 .section{ padding:15px 14px; }
 .section-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .title{ font-size:16px; text-transform:capitalize; font-weight:bold; }
-.see-more-btn{ color:#e50914; font-size:20px; font-weight:bold; cursor:pointer; user-select:none; }
+.see-more-btn{ color:var(--accent-color); font-size:20px; font-weight:bold; cursor:pointer; }
+
 .row{ display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding-bottom: 5px; }
-.row::-webkit-scrollbar{ display:none; }
-
 .movie{ width:150px; min-width:150px; cursor:pointer; background: transparent; border: none; flex-shrink: 0; }
-.poster-box { width:100%; height:95px; background:linear-gradient(135deg, #1f222e 0%, #13151c 100%); border-radius:8px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }
-.poster-box img { width:100%; height:100%; object-fit:cover; display:block; }
-.poster-box i { font-size:24px; color:#e50914; }
-.movieName{ padding: 6px 2px 2px 2px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color: #e1e4ed; }
-.movieMeta{ padding: 0 2px 6px 2px; color:#78838e; font-size:9px; text-transform:capitalize; display: flex; justify-content: space-between; }
 
-.modal, .admin, .category-page, .actor-profile-page{ position:fixed; inset:0; display:none; background:rgba(0,0,0,.92); z-index:100; }
-.category-page, .actor-profile-page{ background:#0d0e12; z-index:90; overflow-y:auto; }
-.category-header{ height:65px; display:flex; align-items:center; gap:15px; padding:0 15px; background:#13151c; border-bottom:1px solid #1f222e; position:sticky; top:0; z-index:10; }
-.back-btn{ background:none; border:none; color:white; font-size:22px; cursor:pointer; }
-.category-title-head{ font-size:18px; font-weight:bold; text-transform:capitalize; }
-.grid-container{ display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:12px; padding:15px; }
-.grid-movie{ cursor:pointer; width:100%; background: transparent; border: none; }
+.poster-box { 
+  width:100%; height:95px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius:12px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); 
+}
+.poster-box img { width:100%; height:100%; object-fit:cover; }
+.movieName{ padding: 6px 2px 2px 2px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color: var(--text-color); }
+.movieMeta{ padding: 0 2px 6px 2px; color:var(--subtext-color); font-size:9px; display: flex; justify-content: space-between; }
 
-.actor-profile-banner { position: relative; width: 100%; height: 200px; background: #191c26; overflow: hidden; }
-.actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
-.actor-profile-header { display: flex; align-items: center; gap: 16px; padding: 15px; background: transparent; border: none; text-align: left; position: relative; margin-top: -35px; margin-left: 5px; width: calc(100% - 10px); box-shadow: none; }
-.actor-profile-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid #e50914; background: #191c26; flex-shrink: 0; box-shadow: 0 4px 10px rgba(0,0,0,0.6); }
-.actor-profile-info { display: flex; flex-direction: column; justify-content: center; }
-.actor-profile-name { font-size: 18px; font-weight: bold; color: white; margin-bottom: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
-.actor-profile-sub { font-size: 12px; color: #bbb; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+/* Fixed Pages */
+.category-page, .actor-profile-page{ 
+  position:fixed; inset:0; display:none; background: var(--bg-gradient); z-index:90; overflow-y:auto; 
+}
+.category-page.active, .actor-profile-page.active { display: block; }
 
-.modal{ align-items:flex-start; justify-content:center; padding:15px 12px; overflow-y:auto; }
-.modalBox{ width:100%; max-width:600px; background:#13151c; border-radius:12px; overflow:hidden; position:relative; max-height:92vh; overflow-y:auto; border:1px solid #272b3c; margin-top: 10px; }
+.category-header{ height:65px; display:flex; align-items:center; gap:15px; padding:0 15px; background:var(--glass-header); border-bottom:1px solid var(--glass-border); position:sticky; top:0; z-index:10; backdrop-filter: blur(16px); }
+.back-btn{ background:none; border:none; color:var(--text-color); font-size:22px; cursor:pointer; }
+
+.grid-container{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; padding:15px; width:100%; }
+.grid-movie{ cursor:pointer; width:100%; display: flex; flex-direction: column; }
+.grid-poster { width: 100%; height: 110px; object-fit: cover; border-radius: 12px; border: 1px solid var(--glass-border); }
+
+/* Actor Profile Styles */
+.actor-profile-banner { position: relative; width: 100%; height: 180px; background: var(--glass-bg); overflow: hidden; }
+.actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; }
+.actor-profile-header { display: flex; align-items: center; gap: 16px; padding: 15px; position: relative; margin-top: -35px; margin-left: 5px; width: calc(100% - 10px); }
+.actor-profile-avatar { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); background: var(--glass-bg); flex-shrink: 0; box-shadow: var(--glass-shadow); }
+
+/* Full-Screen Free Video Modal */
+.modal{ 
+  position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:500; overflow-y:auto; 
+}
+.modal.active { display: block; }
+
+.modalBox{ 
+  width:100%; max-width:700px; margin:0 auto; min-height:100vh; background:transparent; position:relative; padding-bottom:30px;
+}
+
 .modalMediaContainer{ width:100%; aspect-ratio: 16/9; background:#000; position:relative; }
-.modalImage{ width:100%; height:100%; object-fit:cover; display:block; }
+.modalImage{ width:100%; height:100%; object-fit:cover; }
 .modalIframe, .modalVideo{ width:100%; height:100%; border:0; display:none; position:absolute; inset:0; }
-.close-icon{ position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); color:white; border:0; width:30px; height:30px; border-radius:50%; font-size:16px; cursor:pointer; z-index:10; }
-.modalContent{ padding:16px; }
-.modalContent h2{ font-size:18px; margin-bottom:12px; }
+.close-icon{ position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); color:white; border:0; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; z-index:20; backdrop-filter: blur(6px); border:1px solid var(--glass-border); }
+.modalContent{ padding:20px 15px; }
 
-.modal-actor-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer; background: #191c26; padding: 8px 12px; border-radius: 8px; border: 1px solid #272b3c; width: fit-content; }
-.modal-actor-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #e50914; display: none; }
-.modal-actor-name { font-size: 12px; font-weight: 600; color: #e1e4ed; }
+.modal-actor-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; background: var(--glass-bg); padding: 8px 14px; border-radius: 12px; border: 1px solid var(--glass-border); width: fit-content; }
+.modal-actor-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--accent-color); display: none; }
 
-.action-btns{ display:flex; gap:10px; margin-top:10px; }
-.btn-action{ flex:1; padding:10px; border:0; border-radius:7px; font-weight:bold; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; text-align:center; }
-.watch-btn{ background:#e50914; color:#fff; }
-.admin{ background:#0d0e12; z-index:400; overflow-y:auto; }
-.adminHeader{ height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 15px; border-bottom:1px solid #1f222e; position:sticky; top:0; background:#13151c; }
-.adminHeader h2{ color:#e50914; font-size:18px; }
-.adminContent{ max-width:600px; margin:auto; padding:20px; }
+.action-btns{ display:flex; gap:10px; margin-top:10px; margin-bottom: 25px; }
+.btn-action{ flex:1; padding:12px; border:0; border-radius:12px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; }
+.watch-btn{ background:var(--accent-color); color:#fff; }
+
+.modal-suggestions-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; color: var(--text-color); }
+
+/* Admin Panel */
+.admin{ position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:400; overflow-y:auto; flex-direction: column; }
+.admin.active { display: flex; }
+
+.adminHeader{ height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 15px; border-bottom:1px solid var(--glass-border); position:sticky; top:0; background:var(--glass-header); backdrop-filter: blur(16px); }
+.adminContent{ max-width:600px; margin:auto; padding:20px; width:100%; }
 .group{ margin-bottom:15px; }
-.group label{ display:block; color:#a0a6b8; font-size:12px; margin-bottom:6px; }
-.group input{ width:100%; padding:10px; background:#191c26; color:white; border:1px solid #272b3c; border-radius:8px; outline:none; font-size:12px; }
-.preview{ width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none; }
-.addBtn{ width:100%; padding:12px; border:0; border-radius:8px; background:#e50914; color:white; font-weight:bold; cursor:pointer; margin-top:5px; font-size:13px; }
-.cancelBtn{ background:#525868; width:100%; padding:10px; border:0; border-radius:8px; color:white; font-weight:bold; cursor:pointer; margin-top:5px; display:none; font-size:12px; }
-.admin-card-section{ background:#13151c; border-radius:10px; border:1px solid #1f222e; margin-bottom:15px; overflow:hidden; }
-.accordion-header{ display:flex; justify-content:space-between; align-items:center; padding:15px; cursor:pointer; user-select:none; }
-.accordion-header h3{ font-size:15px; margin:0; }
-.accordion-icon{ font-size:13px; font-weight:bold; }
-.accordion-body{ padding:15px; border-top:1px solid #1f222e; display:none; }
-.adminItem{ display:flex; align-items:center; gap:10px; background:#191c26; padding:10px; margin-top:10px; border-radius:8px; border:1px solid #272b3c; }
-.adminThumb{ width:60px; height:35px; object-fit:cover; border-radius:4px; }
-.adminBtns{ display:flex; gap:6px; }
-.editBtn{ background:#f39c12; color:white; border:0; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px; }
-.deleteBtn{ background:#e50914; color:white; border:0; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:11px; }
-footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
+.group label{ display:block; color:var(--subtext-color); font-size:12px; margin-bottom:6px; }
+.group input, .group select{ width:100%; padding:12px; background:var(--glass-bg); color:var(--text-color); border:1px solid var(--glass-border); border-radius:12px; outline:none; font-size:12px; }
+.group select option { background: #0f172a; color: #fff; }
+
+.addBtn{ width:100%; padding:12px; border:0; border-radius:12px; background:var(--accent-color); color:white; font-weight:bold; cursor:pointer; margin-top:5px; }
+.admin-card-section{ background:var(--glass-header); border-radius:16px; border:1px solid var(--glass-border); margin-bottom:15px; overflow:hidden; backdrop-filter: blur(15px); }
+.accordion-header{ display:flex; justify-content:space-between; align-items:center; padding:15px; cursor:pointer; }
+.accordion-body{ padding:15px; border-top:1px solid var(--glass-border); display:none; }
+
+.adminItem{ display:flex; align-items:center; gap:10px; background:var(--glass-bg); padding:10px; margin-top:10px; border-radius:12px; border:1px solid var(--glass-border); }
+.adminThumb{ width:60px; height:35px; object-fit:cover; border-radius:6px; }
+
+footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:11px; }
 </style>
 </head>
 
-<body>
+<body data-theme="dark">
 
 <header>
   <div class="logo" onclick="showAllHomeMovies()">stream<span>hub</span></div>
   <div class="search-container">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <input id="search" class="search" placeholder="Search videos, actors, categories..." autocomplete="off">
+    <span class="search-icon-inside">🔍</span>
+    <input id="search" class="search" placeholder="Search videos, actors..." autocomplete="off">
     <div id="suggestions" class="suggestions-box"></div>
   </div>
-  <button class="menuBtn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+  <div class="header-actions">
+    <button class="theme-toggle-btn" onclick="toggleTheme()"><span id="themeIcon">☀️</span></button>
+    <button class="menuBtn" onclick="toggleSidebar()">☰</button>
+  </div>
 </header>
 
 <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div id="sidebar" class="sidebar">
   <div>
     <div class="sidebar-header">
-      <span style="font-weight:900; font-size:18px;">stream<span style="color:#e50914;">hub</span></span>
-      <button style="background:none; border:none; color:white; font-size:18px; cursor:pointer;" onclick="toggleSidebar()">✕</button>
+      <span style="font-weight:900; font-size:18px;">stream<span style="color:var(--accent-color);">hub</span></span>
+      <button style="background:none; border:none; color:var(--text-color); font-size:18px; cursor:pointer;" onclick="toggleSidebar()">✕</button>
     </div>
     <div class="sidebar-menu-list">
-      <button onclick="showAllHomeMovies()"><i class="fa-solid fa-house"></i> Home</button>
-      <button onclick="openAdminSecretly()"><i class="fa-solid fa-gear"></i> Admin Panel</button>
+      <button onclick="showAllHomeMovies()">🏠 Home</button>
+      <button onclick="openAdminSecretly()">⚙️ Admin Panel</button>
     </div>
   </div>
-  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Supabase Edition</div>
+  <div style="font-size:11px; color:var(--subtext-color); text-align:center; padding-top:20px;">StreamHub Glass Edition</div>
 </div>
 
-<div class="section" style="padding-bottom: 5px;">
-  <div id="performersRow" class="performers-row"></div>
-</div>
-
-<div class="section" style="padding-top: 0; padding-bottom: 5px;">
+<!-- 1. Tags Row (Top) -->
+<div class="section" style="padding-top: 12px; padding-bottom: 0;">
   <div id="categoriesRow" class="categories-row"></div>
 </div>
 
+<!-- 2. Promo Banner Ad Container -->
+<div id="promoBannerWrapper" class="promo-banner-container" style="display:none;"></div>
+
+<!-- 3. Performers Row -->
+<div class="section" style="padding-top: 0; padding-bottom: 5px;">
+  <div id="performersRow" class="performers-row"></div>
+</div>
+
+<!-- 4. Categories & Videos Grid -->
 <div id="dynamicCategoriesContainer"></div>
 
 <footer>© 2026 StreamHub</footer>
@@ -169,24 +343,26 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
   <div class="actor-profile-header">
     <img id="actorProfileAvatar" class="actor-profile-avatar" src="" onerror="this.style.display='none'">
     <div class="actor-profile-info">
-      <div id="actorProfileName" class="actor-profile-name"></div>
-      <div id="actorProfileCount" class="actor-profile-sub">0 Videos</div>
+      <div id="actorProfileName" class="actor-profile-name" style="font-size:18px; font-weight:bold;"></div>
+      <div id="actorProfileCount" class="actor-profile-sub" style="font-size:12px; color:var(--subtext-color);">0 Videos</div>
     </div>
   </div>
 
   <div id="actorProfileGrid" class="grid-container" style="margin-top: 10px;"></div>
 </div>
 
+<!-- Video Modal (Avcaption & Clean Player support) -->
 <div id="movieModal" class="modal">
   <div class="modalBox">
     <button class="close-icon" onclick="closeMovie()">✕</button>
     <div class="modalMediaContainer">
       <img id="modalImage" class="modalImage" src="">
-      <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      <!-- Avcaption compatible iframe & video player configuration -->
+      <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen allow="autoplay; encrypted-media; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"></iframe>
       <video id="modalVideoPlayer" class="modalVideo" controls autoplay></video>
     </div>
     <div class="modalContent">
-      <h2 id="modalTitle"></h2>
+      <h2 id="modalTitle" style="font-size:20px; margin-bottom:12px;"></h2>
       
       <div id="modalActorContainer" class="modal-actor-info" style="display:none;" onclick="openActorProfileFromModal()">
         <img id="modalActorAvatar" class="modal-actor-avatar" src="" onerror="this.style.display='none'">
@@ -195,87 +371,132 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 
       <div class="action-btns">
         <a id="watchMovieAnchor" class="btn-action watch-btn" href="javascript:void(0)" onclick="handleWatchClick()">▶ Play Video</a>
+        <button class="btn-action" style="background:var(--glass-bg); color:var(--text-color); flex: 0.4; border:1px solid var(--glass-border);" onclick="shareVideo()">🔗 Share</button>
       </div>
-      <div style="margin-top: 10px; display: flex; justify-content: flex-end;">
-        <button class="btn-action" style="background:#191c26; color:#a0a6b8; padding: 6px 12px; flex: unset; font-size: 11px;" onclick="shareVideo()"><i class="fa-solid fa-share-nodes"></i> Share</button>
-      </div>
+
+      <!-- Category Suggestions Section inside Video Modal -->
+      <div class="modal-suggestions-title">Recommended Videos</div>
+      <div id="modalSuggestionsGrid" class="grid-container" style="padding:0; margin-top:10px;"></div>
     </div>
   </div>
 </div>
 
+<!-- Admin Panel -->
 <div id="adminPanel" class="admin">
   <div class="adminHeader">
     <h2>⚙️ Admin Panel</h2>
-    <button class="deleteBtn" style="background:#272b3c; color:white;" onclick="closeAdmin()">✕ Close</button>
+    <button class="addBtn" style="background:var(--glass-bg); color:var(--text-color); width:auto; padding:6px 12px; border:1px solid var(--glass-border);" onclick="closeAdmin()">✕ Close</button>
   </div>
   <div class="adminContent">
     
+    <!-- Video Form Section -->
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secMovie', 'iconMovie')">
-        <h3 id="videoFormTitle" style="color:#e50914;">🎬 Add Video Entry</h3>
-        <span id="iconMovie" class="accordion-icon">▼</span>
+        <h3 id="videoFormTitle" style="color:var(--accent-color);">🎬 Add Video Entry</h3>
+        <span id="iconMovie">▼</span>
       </div>
       <div id="secMovie" class="accordion-body">
         <input type="hidden" id="editMovieId">
         <div class="group"><label>Video Title</label><input id="movieTitle" placeholder="Title"></div>
-        <div class="group"><label>Any Link / Embed Code / StreamTape / YouTube / MP4 / Terabox Link</label><input id="movieLink" placeholder="Paste link or embed code here..."></div>
+        <div class="group"><label>Avcaption Embed Link / Direct Video URL / MP4 / M3U8</label><input id="movieLink" placeholder="Paste Avcaption embed link here..."></div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
         <div class="group">
           <label>Actor Name</label>
-          <input id="movieActor" list="actorSuggestions" placeholder="Actor/Performer Name">
+          <input id="movieActor" list="actorSuggestions" placeholder="Actor Name">
           <datalist id="actorSuggestions"></datalist>
         </div>
         <div class="group">
           <label>Thumbnail Poster</label>
           <input id="movieImage" type="file" accept="image/*">
-          <img id="preview" class="preview">
+          <img id="preview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
         </div>
         <button id="videoSubmitBtn" class="addBtn" onclick="saveMovie()">Save Video</button>
-        <button id="videoCancelBtn" class="cancelBtn" onclick="resetVideoForm()">Cancel Edit</button>
+        <button id="videoCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetVideoForm()">Cancel Edit</button>
       </div>
     </div>
 
+    <!-- Actor Form Section -->
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secActor', 'iconActor')">
-        <h3 id="actorFormTitle" style="color:#e50914;">👤 Add Actor / Performer</h3>
-        <span id="iconActor" class="accordion-icon">▼</span>
+        <h3 id="actorFormTitle" style="color:var(--accent-color);">👤 Add Actor / Performer</h3>
+        <span id="iconActor">▼</span>
       </div>
       <div id="secActor" class="accordion-body">
         <input type="hidden" id="editActorId">
         <div class="group"><label>Actor Name</label><input id="actorName" placeholder="Performer name"></div>
         
         <div class="group">
-          <label>Actor Profile Avatar (Circle Photo)</label>
+          <label>Actor Profile Avatar</label>
           <input id="actorImage" type="file" accept="image/*">
-          <img id="actorPreview" class="preview">
+          <img id="actorPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
         </div>
 
         <div class="group">
-          <label>Actor Banner Thumbnail (Background behind profile)</label>
+          <label>Actor Banner Thumbnail</label>
           <input id="actorBannerImage" type="file" accept="image/*">
-          <img id="actorBannerPreview" class="preview">
+          <img id="actorBannerPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
         </div>
 
         <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor</button>
-        <button id="actorCancelBtn" class="cancelBtn" onclick="resetActorForm()">Cancel Edit</button>
+        <button id="actorCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetActorForm()">Cancel Edit</button>
       </div>
     </div>
 
-    <div class="admin-card-section" style="margin-top:15px;">
+    <!-- Ads Manager Section -->
+    <div class="admin-card-section">
+      <div class="accordion-header" onclick="toggleAccordion('secAd', 'iconAd')">
+        <h3 id="adFormTitle" style="color:#fbbf24;">📢 Manage Banner Ads</h3>
+        <span id="iconAd">▼</span>
+      </div>
+      <div id="secAd" class="accordion-body">
+        <input type="hidden" id="editAdId">
+        <div class="group"><label>Ad Title / Description</label><input id="adTitle" placeholder="e.g. Special Offer Ad"></div>
+        
+        <div class="group">
+          <label>Ad Banner Image</label>
+          <input id="adImageFile" type="file" accept="image/*">
+          <img id="adPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
+        </div>
+
+        <div class="group">
+          <label>Link Type</label>
+          <select id="adTargetType" onchange="toggleAdTargetInputs()">
+            <option value="url">External Website / Direct URL</option>
+            <option value="video">Specific Video</option>
+            <option value="category">Category</option>
+            <option value="actor">Actor Profile</option>
+            <option value="tag">Tag (e.g. Recently Added)</option>
+          </select>
+        </div>
+
+        <div class="group" id="adTargetValueContainer">
+          <label id="adTargetLabel">Target URL</label>
+          <input id="adTargetValue" placeholder="https://example.com or Video ID / Category name...">
+        </div>
+
+        <button id="adSubmitBtn" class="addBtn" style="background:#fbbf24; color:#000;" onclick="saveAd()">Save Banner Ad</button>
+        <button id="adCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetAdForm()">Cancel Edit</button>
+
+        <div style="margin-top: 15px;" id="adminAdsList"></div>
+      </div>
+    </div>
+
+    <!-- Lists -->
+    <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secItems', 'iconItems')">
         <h3>📹 Videos List</h3>
-        <span id="iconItems" class="accordion-icon">▼</span>
+        <span id="iconItems">▼</span>
       </div>
       <div id="secItems" class="accordion-body">
         <div id="adminMovies"></div>
       </div>
     </div>
 
-    <div class="admin-card-section" style="margin-top:15px;">
+    <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secActorsList', 'iconActorsList')">
         <h3>👥 Performers List</h3>
-        <span id="iconActorsList" class="accordion-icon">▼</span>
+        <span id="iconActorsList">▼</span>
       </div>
       <div id="secActorsList" class="accordion-body">
         <div id="adminActors"></div>
@@ -291,8 +512,21 @@ const ANON_KEY = 'sb_publishable_RnQLYXFjBaNMh5yThZ-zeg_lPIbPMjw';
 
 let movies = [];
 let performers = [];
+let ads = [];
 let selectedMovie = null;
 let activeTagFilter = '';
+
+function toggleTheme() {
+  const body = document.body;
+  const themeIcon = document.getElementById("themeIcon");
+  if(body.getAttribute("data-theme") === "dark") {
+    body.setAttribute("data-theme", "light");
+    themeIcon.textContent = "🌙";
+  } else {
+    body.setAttribute("data-theme", "dark");
+    themeIcon.textContent = "☀️";
+  }
+}
 
 function getValidImg(movie) {
   if (movie.poster_url && movie.poster_url.trim() !== '' && movie.poster_url !== 'null') return movie.poster_url;
@@ -302,27 +536,33 @@ function getValidImg(movie) {
 
 async function loadAllData() {
   try {
-    const [resVideos, resPerformers] = await Promise.all([
+    const [resVideos, resPerformers, resAds] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=created_at.desc`, {
         headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
       }),
       fetch(`${SUPABASE_URL}/rest/v1/performers?select=*&order=created_at.desc`, {
         headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
-      })
+      }),
+      fetch(`${SUPABASE_URL}/rest/v1/ads?select=*&order=created_at.desc`, {
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
+      }).catch(() => ({ json: () => [] }))
     ]);
 
     movies = await resVideos.json();
     performers = await resPerformers.json();
+    try { ads = await resAds.json(); } catch(e) { ads = []; }
 
     if(!Array.isArray(movies)) movies = [];
     if(!Array.isArray(performers)) performers = [];
+    if(!Array.isArray(ads)) ads = [];
 
   } catch(err) {
     console.error("Error loading data from Supabase:", err);
   }
 
-  renderPerformers();
   renderCategoriesBar();
+  renderPerformers();
+  renderAdsBanner();
   renderMovies();
   renderAdmin();
   updateActorSuggestions();
@@ -358,14 +598,14 @@ function openAdminSecretly() {
   toggleSidebar();
   const pin = prompt("Enter PIN:");
   if(pin === "7890") {
-    document.getElementById("adminPanel").style.display = "block";
+    document.getElementById("adminPanel").classList.add("active");
     renderAdmin();
   } else if(pin !== null) {
     alert("Invalid PIN!");
   }
 }
 
-function closeAdmin(){ document.getElementById("adminPanel").style.display="none"; }
+function closeAdmin(){ document.getElementById("adminPanel").classList.remove("active"); }
 
 function toggleAccordion(bodyId, iconId){
   const body = document.getElementById(bodyId);
@@ -379,35 +619,36 @@ function toggleAccordion(bodyId, iconId){
   }
 }
 
+function toggleAdTargetInputs() {
+  const type = document.getElementById("adTargetType").value;
+  const label = document.getElementById("adTargetLabel");
+  if(type === 'video') label.textContent = "Video Title or ID";
+  else if(type === 'category') label.textContent = "Category Name";
+  else if(type === 'actor') label.textContent = "Actor Name";
+  else if(type === 'tag') label.textContent = "Tag Name (e.g. Recently Added)";
+  else label.textContent = "Target Website URL";
+}
+
 function processVideoLink(input) {
   if (!input) return { type: 'iframe', url: '' };
   let target = input.trim();
-
   const srcMatch = target.match(/src=["']([^"']+)["']/);
   if (srcMatch) target = srcMatch[1];
-
+  
   if (target.match(/\.(mp4|webm|ogg|m3u8)(\?.*)?$/i) || target.startsWith("blob:")) {
     return { type: 'video', url: target };
+  }
+  
+  // Avcaption or generic embed link parser
+  if (target.includes("avcaption.com")) {
+    return { type: 'iframe', url: target };
   }
 
   let ytMatch = target.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
   if (ytMatch && ytMatch[1]) {
     return { type: 'iframe', url: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1` };
   }
-
-  let stMatch = target.match(/(?:streamtape\.(?:com|to|net|cc|site|xyz)\/(?:v|e)\/)([a-zA-Z0-9]+)/);
-  if (stMatch && stMatch[1]) {
-    return { type: 'iframe', url: `https://streamtape.to/e/${stMatch[1]}` };
-  }
-
-  if (target.startsWith("http://") || target.startsWith("https://")) {
-    return { type: 'iframe', url: target };
-  }
-
-  if (/^[a-zA-Z0-9]{10,25}$/.test(target)) {
-    return { type: 'iframe', url: `https://streamtape.to/e/${target}` };
-  }
-
+  
   return { type: 'iframe', url: target };
 }
 
@@ -447,6 +688,18 @@ document.getElementById("actorBannerImage").addEventListener("change", function(
   reader.readAsDataURL(file);
 });
 
+document.getElementById("adImageFile").addEventListener("change", function(){
+  const file = this.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const preview = document.getElementById("adPreview");
+    preview.src = e.target.result;
+    preview.style.display = "block";
+  };
+  reader.readAsDataURL(file);
+});
+
 async function uploadFileToSupabase(file) {
   if (!file) return "";
   const cleanFileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
@@ -470,22 +723,6 @@ async function uploadFileToSupabase(file) {
     console.error("Upload failed", e);
   }
   return "";
-}
-
-function renderPerformers() {
-  const row = document.getElementById('performersRow');
-  row.innerHTML = '';
-  performers.forEach(p => {
-    const item = document.createElement('div');
-    item.className = 'performer-item';
-    item.innerHTML = `
-      <div class="avatar-box" onclick="openActorProfile('${escapeHTML(p.name)}')">
-        ${p.image_url ? `<img src="${p.image_url}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '<i class="fa-solid fa-user" style="color:#555"></i>'}
-      </div>
-      <span class="performer-name" onclick="openActorProfile('${escapeHTML(p.name)}')">${p.name}</span>
-    `;
-    row.appendChild(item);
-  });
 }
 
 function renderCategoriesBar() {
@@ -515,6 +752,57 @@ function renderCategoriesBar() {
     badge.onclick = () => filterByTag(tag);
     row.appendChild(badge);
   });
+}
+
+function renderPerformers() {
+  const row = document.getElementById('performersRow');
+  row.innerHTML = '';
+  performers.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'performer-item';
+    item.innerHTML = `
+      <div class="avatar-box" onclick="openActorProfile('${escapeHTML(p.name)}')">
+        ${p.image_url ? `<img src="${p.image_url}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '<span style="font-size:20px;">👤</span>'}
+      </div>
+      <span class="performer-name" onclick="openActorProfile('${escapeHTML(p.name)}')">${p.name}</span>
+    `;
+    row.appendChild(item);
+  });
+}
+
+function renderAdsBanner() {
+  const wrapper = document.getElementById("promoBannerWrapper");
+  if(ads.length === 0) {
+    wrapper.style.display = "none";
+    wrapper.innerHTML = "";
+    return;
+  }
+  const ad = ads[0];
+  wrapper.style.display = "block";
+
+  wrapper.innerHTML = `
+    <div class="promo-banner" onclick="handleAdClick('${escapeHTML(ad.target_type)}', '${escapeHTML(ad.target_value)}')">
+      <img src="${escapeHTML(ad.image_url)}" onerror="this.parentElement.style.display='none'">
+      <div class="promo-badge">Sponsored AD</div>
+    </div>
+  `;
+}
+
+function handleAdClick(type, val) {
+  if(!type || !val) return;
+  if(type === 'url') {
+    window.open(val.startsWith('http') ? val : 'https://' + val, '_blank');
+  } else if(type === 'video') {
+    let found = movies.find(m => m.id == val || m.title.toLowerCase().includes(val.toLowerCase()));
+    if(found) openMovie(found);
+    else alert("Video not found!");
+  } else if(type === 'category') {
+    openFilteredPage(val);
+  } else if(type === 'actor') {
+    openActorProfile(val);
+  } else if(type === 'tag') {
+    filterByTag(val);
+  }
 }
 
 function showAllHomeMovies(){
@@ -582,7 +870,7 @@ function createCard(movie){
   card.onclick = function(){ openMovie(movie); };
 
   const imgUrl = getValidImg(movie);
-  const imgHtml = imgUrl ? `<img src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<i class="fa-solid fa-circle-play"></i>`;
+  const imgHtml = imgUrl ? `<img src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<span>▶</span>`;
 
   card.innerHTML = `
     <div class="poster-box">
@@ -616,7 +904,7 @@ function openFilteredPage(queryValue){
     card.className = "grid-movie";
     card.onclick = function(){ openMovie(movie); };
     const imgUrl = getValidImg(movie);
-    const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><i class="fa-solid fa-circle-play"></i></div>`;
+    const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><span>▶</span></div>`;
     
     card.innerHTML = `
       ${imgHtml}
@@ -626,11 +914,11 @@ function openFilteredPage(queryValue){
     grid.appendChild(card);
   });
 
-  page.style.display = "block";
+  page.classList.add("active");
 }
 
 function closeCategoryPage(){
-  document.getElementById("categoryPage").style.display = "none";
+  document.getElementById("categoryPage").classList.remove("active");
 }
 
 function openActorProfile(actorName) {
@@ -664,14 +952,14 @@ function openActorProfile(actorName) {
   grid.innerHTML = "";
 
   if(actorMovies.length === 0) {
-    grid.innerHTML = `<p style="color:#777; grid-column: 1/-1; text-align:center; padding:20px;">No videos found for this actor.</p>`;
+    grid.innerHTML = `<p style="color:var(--subtext-color); grid-column: 1/-1; text-align:center; padding:20px;">No videos found for this actor.</p>`;
   } else {
     actorMovies.forEach(movie => {
       const card = document.createElement("div");
       card.className = "grid-movie";
       card.onclick = function(){ openMovie(movie); };
       const imgUrl = getValidImg(movie);
-      const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><i class="fa-solid fa-circle-play"></i></div>`;
+      const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><span>▶</span></div>`;
 
       card.innerHTML = `
         ${imgHtml}
@@ -682,15 +970,149 @@ function openActorProfile(actorName) {
     });
   }
 
-  page.style.display = "block";
+  page.classList.add("active");
 }
 
 function closeActorProfilePage(){
-  document.getElementById("actorProfilePage").style.display = "none";
+  document.getElementById("actorProfilePage").classList.remove("active");
 }
 
 function escapeHTML(text){
   return String(text||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function openMovie(movie){
+  selectedMovie = movie;
+  document.getElementById("modalTitle").textContent = movie.title;
+  const imgElement = document.getElementById("modalImage");
+  const iframeElement = document.getElementById("modalTrailerFrame");
+  const videoPlayer = document.getElementById("modalVideoPlayer");
+
+  iframeElement.style.display = "none";
+  iframeElement.src = "";
+  videoPlayer.style.display = "none";
+  videoPlayer.pause();
+  videoPlayer.src = "";
+
+  const validImg = getValidImg(movie);
+  if(validImg) {
+    imgElement.style.display = "block";
+    imgElement.src = validImg;
+  } else {
+    imgElement.style.display = "none";
+  }
+
+  const actorContainer = document.getElementById("modalActorContainer");
+  const actorAvatarImg = document.getElementById("modalActorAvatar");
+  let matchedActorName = movie.actor ? movie.actor.trim() : "";
+  let matchedActor = performers.find(p => p.name.toLowerCase() === matchedActorName.toLowerCase());
+
+  if(matchedActor) {
+    if(matchedActor.image_url && matchedActor.image_url.trim() !== '') {
+      actorAvatarImg.src = matchedActor.image_url;
+      actorAvatarImg.style.display = "block";
+    } else {
+      actorAvatarImg.style.display = "none";
+    }
+    document.getElementById("modalActorName").textContent = matchedActor.name;
+    actorContainer.style.display = "flex";
+    actorContainer.dataset.actorName = matchedActor.name;
+  } else if(movie.actor) {
+    actorAvatarImg.style.display = "none";
+    document.getElementById("modalActorName").textContent = movie.actor;
+    actorContainer.style.display = "flex";
+    actorContainer.dataset.actorName = movie.actor;
+  } else {
+    actorContainer.style.display = "none";
+  }
+
+  renderModalSuggestions(movie);
+
+  document.getElementById("movieModal").classList.add("active");
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderModalSuggestions(currentMovie) {
+  const grid = document.getElementById("modalSuggestionsGrid");
+  grid.innerHTML = "";
+
+  const currentCat = (currentMovie.category || "").toLowerCase();
+  const currentActor = (currentMovie.actor || "").toLowerCase();
+
+  let related = movies.filter(m => m.id !== currentMovie.id && (
+    (m.category && m.category.toLowerCase() === currentCat) ||
+    (m.actor && m.actor.toLowerCase() === currentActor)
+  ));
+
+  if (related.length < 4) {
+    const others = movies.filter(m => m.id !== currentMovie.id && !related.includes(m));
+    related = related.concat(others);
+  }
+
+  related.slice(0, 6).forEach(movie => {
+    const card = document.createElement("div");
+    card.className = "grid-movie";
+    card.onclick = function(){ openMovie(movie); };
+    const imgUrl = getValidImg(movie);
+    const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><span>▶</span></div>`;
+
+    card.innerHTML = `
+      ${imgHtml}
+      <div class="movieName">${escapeHTML(movie.title)}</div>
+      <div class="movieMeta"><span>HD</span><span>10k views</span></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function openActorProfileFromModal(){
+  const actorContainer = document.getElementById("modalActorContainer");
+  const actorName = actorContainer.dataset.actorName;
+  if(actorName) {
+    closeMovie();
+    openActorProfile(actorName);
+  }
+}
+
+function handleWatchClick(){
+  if(!selectedMovie) return;
+  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
+  const handled = processVideoLink(videoUrl);
+
+  document.getElementById("modalImage").style.display = "none";
+
+  if (handled.type === 'video') {
+    const videoPlayer = document.getElementById("modalVideoPlayer");
+    videoPlayer.style.display = "block";
+    videoPlayer.src = handled.url;
+    videoPlayer.play();
+  } else {
+    const iframeElement = document.getElementById("modalTrailerFrame");
+    iframeElement.style.display = "block";
+    iframeElement.src = handled.url;
+  }
+}
+
+function closeMovie(){ 
+  document.getElementById("movieModal").classList.remove("active"); 
+  document.getElementById("modalTrailerFrame").src = "";
+  const videoPlayer = document.getElementById("modalVideoPlayer");
+  videoPlayer.pause();
+  videoPlayer.src = "";
+}
+
+function shareVideo(){
+  if(!selectedMovie) return;
+  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
+  navigator.clipboard.writeText(videoUrl);
+  alert("🔗 Video link copied to clipboard!");
+}
+
+function filterByTag(tag) {
+  activeTagFilter = tag;
+  renderCategoriesBar();
+  renderMovies();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 async function saveMovie(){
@@ -759,6 +1181,91 @@ async function saveMovie(){
     }
   } catch(e) {
     alert("An error occurred. Check connection.");
+  }
+}
+
+async function saveAd() {
+  const editIdInput = document.getElementById("editAdId").value;
+  const title = document.getElementById("adTitle").value.trim() || "Sponsored Ad";
+  const targetType = document.getElementById("adTargetType").value;
+  const targetValue = document.getElementById("adTargetValue").value.trim();
+  const file = document.getElementById("adImageFile").files[0];
+
+  if(!targetValue) return alert("Target value/link required!");
+
+  let imageUrl = document.getElementById("adPreview").src;
+  if(!imageUrl || imageUrl === window.location.href) imageUrl = "";
+
+  if(file){
+    let uploaded = await uploadFileToSupabase(file);
+    if(uploaded) imageUrl = uploaded;
+  }
+
+  const adData = {
+    title,
+    image_url: imageUrl,
+    target_type: targetType,
+    target_value: targetValue
+  };
+
+  try {
+    let res;
+    if(editIdInput && editIdInput !== "") {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${editIdInput}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(adData)
+      });
+    } else {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/ads`, {
+        method: 'POST',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(adData)
+      });
+    }
+
+    if(res.ok) {
+      alert("✅ Ad Saved Successfully!");
+      resetAdForm();
+      loadAllData();
+    } else {
+      alert("Failed to save ad.");
+    }
+  } catch(e) {
+    alert("Error saving ad.");
+  }
+}
+
+function resetAdForm() {
+  document.getElementById("editAdId").value = "";
+  document.getElementById("adTitle").value = "";
+  document.getElementById("adTargetValue").value = "";
+  document.getElementById("adImageFile").value = "";
+  document.getElementById("adPreview").style.display = "none";
+  document.getElementById("adFormTitle").textContent = "📢 Manage Banner Ads";
+  document.getElementById("adSubmitBtn").textContent = "Save Banner Ad";
+  document.getElementById("adCancelBtn").style.display = "none";
+}
+
+async function deleteAd(id) {
+  if(!confirm("Delete ad?")) return;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${id}`, {
+    method: 'DELETE',
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
+  });
+  if(res.ok) {
+    alert("Ad deleted!");
+    loadAllData();
   }
 }
 
@@ -915,14 +1422,12 @@ function renderAdmin(){
     const imgUrl = getValidImg(item);
     div.innerHTML = `
       <img class="adminThumb" src="${imgUrl}" onerror="this.style.display='none'">
-      <div class="adminInfo">
+      <div style="flex:1;">
         <strong>${escapeHTML(item.title)}</strong><br>
-        <small style="color:#a0a6b8;">Cat: ${escapeHTML(item.category || 'General')} | Actor: ${escapeHTML(item.actor || '-')}</small>
+        <small style="color:var(--subtext-color);">Cat: ${escapeHTML(item.category || 'General')}</small>
       </div>
-      <div class="adminBtns">
-        <button class="editBtn" onclick="editMovie('${item.id}')">Edit</button>
-        <button class="deleteBtn" onclick="deleteMovie('${item.id}')">Delete</button>
-      </div>
+      <button class="addBtn" style="width:auto; padding:4px 8px; background:#f39c12;" onclick="editMovie('${item.id}')">Edit</button>
+      <button class="addBtn" style="width:auto; padding:4px 8px;" onclick="deleteMovie('${item.id}')">Delete</button>
     `;
     box.appendChild(div);
   });
@@ -934,15 +1439,29 @@ function renderAdmin(){
     div.className = "adminItem";
     div.innerHTML = `
       <img class="adminThumb" src="${item.image_url || ''}" style="border-radius:50%; width:35px; height:35px;" onerror="this.style.display='none'">
-      <div class="adminInfo">
+      <div style="flex:1;">
         <strong>${escapeHTML(item.name)}</strong>
       </div>
-      <div class="adminBtns">
-        <button class="editBtn" onclick="editActor('${item.id}')">Edit</button>
-        <button class="deleteBtn" onclick="deleteActor('${item.id}')">Delete</button>
-      </div>
+      <button class="addBtn" style="width:auto; padding:4px 8px; background:#f39c12;" onclick="editActor('${item.id}')">Edit</button>
+      <button class="addBtn" style="width:auto; padding:4px 8px;" onclick="deleteActor('${item.id}')">Delete</button>
     `;
     actorBox.appendChild(div);
+  });
+
+  const adList = document.getElementById("adminAdsList");
+  adList.innerHTML = "";
+  ads.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "adminItem";
+    div.innerHTML = `
+      <img class="adminThumb" src="${item.image_url || ''}" onerror="this.style.display='none'">
+      <div style="flex:1;">
+        <strong>${escapeHTML(item.title)}</strong><br>
+        <small style="color:#fbbf24;">Type: ${item.target_type} -> ${item.target_value}</small>
+      </div>
+      <button class="addBtn" style="width:auto; padding:4px 8px;" onclick="deleteAd('${item.id}')">Delete</button>
+    `;
+    adList.appendChild(div);
   });
 }
 
@@ -955,8 +1474,6 @@ async function deleteMovie(id){
   if(res.ok) {
     alert("Video deleted successfully!");
     loadAllData();
-  } else {
-    alert("Failed to delete video");
   }
 }
 
@@ -969,111 +1486,7 @@ async function deleteActor(id){
   if(res.ok) {
     alert("Performer deleted successfully!");
     loadAllData();
-  } else {
-    alert("Failed to delete performer");
   }
-}
-
-function openMovie(movie){
-  selectedMovie = movie;
-  document.getElementById("modalTitle").textContent = movie.title;
-  const imgElement = document.getElementById("modalImage");
-  const iframeElement = document.getElementById("modalTrailerFrame");
-  const videoPlayer = document.getElementById("modalVideoPlayer");
-
-  iframeElement.style.display = "none";
-  iframeElement.src = "";
-  videoPlayer.style.display = "none";
-  videoPlayer.pause();
-  videoPlayer.src = "";
-
-  const validImg = getValidImg(movie);
-  if(validImg) {
-    imgElement.style.display = "block";
-    imgElement.src = validImg;
-  } else {
-    imgElement.style.display = "none";
-  }
-
-  const actorContainer = document.getElementById("modalActorContainer");
-  const actorAvatarImg = document.getElementById("modalActorAvatar");
-  let matchedActorName = movie.actor ? movie.actor.trim() : "";
-  let matchedActor = performers.find(p => p.name.toLowerCase() === matchedActorName.toLowerCase());
-  
-  if(!matchedActor) {
-    matchedActor = performers.find(p => movie.title.toLowerCase().includes(p.name.toLowerCase()) || (movie.category && movie.category.toLowerCase().includes(p.name.toLowerCase())));
-  }
-
-  if(matchedActor) {
-    if(matchedActor.image_url && matchedActor.image_url.trim() !== '') {
-      actorAvatarImg.src = matchedActor.image_url;
-      actorAvatarImg.style.display = "block";
-    } else {
-      actorAvatarImg.style.display = "none";
-    }
-    document.getElementById("modalActorName").textContent = matchedActor.name;
-    actorContainer.style.display = "flex";
-    actorContainer.dataset.actorName = matchedActor.name;
-  } else if(movie.actor) {
-    actorAvatarImg.style.display = "none";
-    document.getElementById("modalActorName").textContent = movie.actor;
-    actorContainer.style.display = "flex";
-    actorContainer.dataset.actorName = movie.actor;
-  } else {
-    actorContainer.style.display = "none";
-  }
-
-  document.getElementById("movieModal").style.display = "flex";
-}
-
-function openActorProfileFromModal(){
-  const actorContainer = document.getElementById("modalActorContainer");
-  const actorName = actorContainer.dataset.actorName;
-  if(actorName) {
-    closeMovie();
-    openActorProfile(actorName);
-  }
-}
-
-function handleWatchClick(){
-  if(!selectedMovie) return;
-  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
-  const handled = processVideoLink(videoUrl);
-
-  document.getElementById("modalImage").style.display = "none";
-
-  if (handled.type === 'video') {
-    const videoPlayer = document.getElementById("modalVideoPlayer");
-    videoPlayer.style.display = "block";
-    videoPlayer.src = handled.url;
-    videoPlayer.play();
-  } else {
-    const iframeElement = document.getElementById("modalTrailerFrame");
-    iframeElement.style.display = "block";
-    iframeElement.src = handled.url;
-  }
-}
-
-function closeMovie(){ 
-  document.getElementById("movieModal").style.display = "none"; 
-  document.getElementById("modalTrailerFrame").src = "";
-  const videoPlayer = document.getElementById("modalVideoPlayer");
-  videoPlayer.pause();
-  videoPlayer.src = "";
-}
-
-function shareVideo(){
-  if(!selectedMovie) return;
-  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
-  navigator.clipboard.writeText(videoUrl);
-  alert("🔗 Video link copied to clipboard!");
-}
-
-function filterByTag(tag) {
-  activeTagFilter = tag;
-  renderCategoriesBar();
-  renderMovies();
-  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 document.getElementById("search").addEventListener("input", function(){
@@ -1093,51 +1506,11 @@ document.getElementById("search").addEventListener("input", function(){
       resultsCount++;
       const item = document.createElement("div");
       item.className = "suggestion-item";
-      item.innerHTML = `<i class="fa-solid fa-user"></i> <span>Actor: <b>${escapeHTML(p.name)}</b></span>`;
+      item.innerHTML = `<span>👤</span> <span>Actor: <b>${escapeHTML(p.name)}</b></span>`;
       item.onclick = function(){
         sugBox.style.display = "none";
         document.getElementById("search").value = "";
         openActorProfile(p.name);
-      };
-      sugBox.appendChild(item);
-    }
-  });
-
-  let uniqueCategories = [...new Set(movies.map(m => m.category ? m.category.trim() : ""))].filter(Boolean);
-  uniqueCategories.forEach(cat => {
-    if(cat.toLowerCase().includes(q)) {
-      resultsCount++;
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      item.innerHTML = `<i class="fa-solid fa-folder"></i> <span>Category: <b>${escapeHTML(cat)}</b></span>`;
-      item.onclick = function(){
-        sugBox.style.display = "none";
-        document.getElementById("search").value = "";
-        openFilteredPage(cat);
-      };
-      sugBox.appendChild(item);
-    }
-  });
-
-  let uniqueTags = [];
-  movies.forEach(m => {
-    if(m.tags) {
-      m.tags.split(',').forEach(t => {
-        let clean = t.trim();
-        if(clean && !uniqueTags.includes(clean)) uniqueTags.push(clean);
-      });
-    }
-  });
-  uniqueTags.forEach(tag => {
-    if(tag.toLowerCase().includes(q)) {
-      resultsCount++;
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      item.innerHTML = `<i class="fa-solid fa-tag"></i> <span>Tag: <b>${escapeHTML(tag)}</b></span>`;
-      item.onclick = function(){
-        sugBox.style.display = "none";
-        document.getElementById("search").value = "";
-        filterByTag(tag);
       };
       sugBox.appendChild(item);
     }
@@ -1148,7 +1521,7 @@ document.getElementById("search").addEventListener("input", function(){
       resultsCount++;
       const itemDiv = document.createElement("div");
       itemDiv.className = "suggestion-item";
-      itemDiv.innerHTML = `<i class="fa-solid fa-video"></i> <span>Video: <b>${escapeHTML(movie.title)}</b></span>`;
+      itemDiv.innerHTML = `<span>🎬</span> <span>Video: <b>${escapeHTML(movie.title)}</b></span>`;
       itemDiv.onclick = function(){
         sugBox.style.display = "none";
         document.getElementById("search").value = "";
@@ -1162,20 +1535,6 @@ document.getElementById("search").addEventListener("input", function(){
     sugBox.style.display = "block";
   } else {
     sugBox.style.display = "none";
-  }
-});
-
-document.getElementById("search").addEventListener("keypress", function(e){
-  if(e.key === "Enter") {
-    const q = this.value.trim();
-    if(q) openFilteredPage(q);
-    document.getElementById("suggestions").style.display = "none";
-  }
-});
-
-document.addEventListener("click", function(e){
-  if(!e.target.closest(".search-container")){
-    document.getElementById("suggestions").style.display = "none";
   }
 });
 </script>
