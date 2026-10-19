@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +45,9 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .row::-webkit-scrollbar{ display:none; }
 
 .movie{ width:150px; min-width:150px; cursor:pointer; background: transparent; border: none; flex-shrink: 0; }
-.poster{ width:100%; height:95px; object-fit:cover; background:#191c26; display: block; border-radius: 8px; }
+.poster-box { width:100%; height:95px; background:linear-gradient(135deg, #1f222e 0%, #13151c 100%); border-radius:8px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }
+.poster-box img { width:100%; height:100%; object-fit:cover; display:block; }
+.poster-box i { font-size:24px; color:#e50914; }
 .movieName{ padding: 6px 2px 2px 2px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color: #e1e4ed; }
 .movieMeta{ padding: 0 2px 6px 2px; color:#78838e; font-size:9px; text-transform:capitalize; display: flex; justify-content: space-between; }
 
@@ -57,7 +58,6 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .category-title-head{ font-size:18px; font-weight:bold; text-transform:capitalize; }
 .grid-container{ display:grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap:12px; padding:15px; }
 .grid-movie{ cursor:pointer; width:100%; background: transparent; border: none; }
-.grid-poster{ width:100%; height:95px; object-fit:cover; background:#191c26; display:block; border-radius: 8px; }
 
 .actor-profile-banner { position: relative; width: 100%; height: 200px; background: #191c26; overflow: hidden; }
 .actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); }
@@ -131,7 +131,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
       <button onclick="openAdminSecretly()"><i class="fa-solid fa-gear"></i> Admin Panel</button>
     </div>
   </div>
-  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Local Storage Edition</div>
+  <div style="font-size:11px; color:#525868; text-align:center; padding-top:20px;">StreamHub Supabase Edition</div>
 </div>
 
 <div class="section" style="padding-bottom: 5px;">
@@ -218,7 +218,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
       <div id="secMovie" class="accordion-body">
         <input type="hidden" id="editMovieId">
         <div class="group"><label>Video Title</label><input id="movieTitle" placeholder="Title"></div>
-        <div class="group"><label>Any Link / Embed Code / StreamTape / YouTube / MP4 Link</label><input id="movieLink" placeholder="Paste link, embed code or URL here..."></div>
+        <div class="group"><label>Any Link / Embed Code / StreamTape / YouTube / MP4 / Terabox Link</label><input id="movieLink" placeholder="Paste link or embed code here..."></div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
         <div class="group"><label>Actor Name</label><input id="movieActor" placeholder="Actor/Performer Name"></div>
@@ -282,16 +282,47 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
 </div>
 
 <script>
-let movies = JSON.parse(localStorage.getItem('local_videos') || '[]');
-let performers = JSON.parse(localStorage.getItem('local_performers') || '[]');
+const SUPABASE_URL = 'https://qhzfeayfufeovkttvycg.supabase.co';
+const ANON_KEY = 'sb_publishable_RnQLYXFjBaNMh5yThZ-zeg_lPIbPMjw';
+
+let movies = [];
+let performers = [];
 let selectedMovie = null;
 let activeTagFilter = '';
 
-function loadAllData(){
+function getValidImg(movie) {
+  if (movie.poster_url && movie.poster_url.trim() !== '' && movie.poster_url !== 'null') return movie.poster_url;
+  if (movie.thumbnail_url && movie.thumbnail_url.trim() !== '' && movie.thumbnail_url !== 'null') return movie.thumbnail_url;
+  return '';
+}
+
+async function loadAllData() {
+  try {
+    const [resVideos, resPerformers] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=created_at.desc`, {
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
+      }),
+      fetch(`${SUPABASE_URL}/rest/v1/performers?select=*&order=created_at.desc`, {
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY }
+      })
+    ]);
+
+    movies = await resVideos.json();
+    performers = await resPerformers.json();
+
+    if(!Array.isArray(movies)) movies = [];
+    if(!Array.isArray(performers)) performers = [];
+
+  } catch(err) {
+    console.error("Error loading data from Supabase:", err);
+  }
+
   renderPerformers();
   renderCategoriesBar();
   renderMovies();
+  renderAdmin();
 }
+
 loadAllData();
 
 function toggleSidebar() {
@@ -311,6 +342,7 @@ function openAdminSecretly() {
   const pin = prompt("Enter PIN:");
   if(pin === "7890") {
     document.getElementById("adminPanel").style.display = "block";
+    renderAdmin();
   } else if(pin !== null) {
     alert("Invalid PIN!");
   }
@@ -398,6 +430,31 @@ document.getElementById("actorBannerImage").addEventListener("change", function(
   reader.readAsDataURL(file);
 });
 
+async function uploadFileToSupabase(file) {
+  if (!file) return "";
+  const cleanFileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+  const uploadEndpoint = `${SUPABASE_URL}/storage/v1/object/thumbnails/${cleanFileName}`;
+
+  try {
+    const res = await fetch(uploadEndpoint, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'x-upsert': 'true'
+      },
+      body: file
+    });
+
+    if (res.ok) {
+      return `${SUPABASE_URL}/storage/v1/object/public/thumbnails/${cleanFileName}`;
+    }
+  } catch(e) {
+    console.error("Upload failed", e);
+  }
+  return "";
+}
+
 function renderPerformers() {
   const row = document.getElementById('performersRow');
   row.innerHTML = '';
@@ -406,7 +463,7 @@ function renderPerformers() {
     item.className = 'performer-item';
     item.innerHTML = `
       <div class="avatar-box" onclick="openActorProfile('${escapeHTML(p.name)}')">
-        ${p.image_url ? `<img src="${p.image_url}" referrerpolicy="no-referrer">` : '<i class="fa-solid fa-user" style="color:#555"></i>'}
+        ${p.image_url ? `<img src="${p.image_url}" referrerpolicy="no-referrer" onerror="this.style.display='none'">` : '<i class="fa-solid fa-user" style="color:#555"></i>'}
       </div>
       <span class="performer-name" onclick="openActorProfile('${escapeHTML(p.name)}')">${p.name}</span>
     `;
@@ -500,8 +557,24 @@ function renderMovies(){
       container.appendChild(section);
     }
   });
+}
 
-  renderAdmin();
+function createCard(movie){
+  const card = document.createElement("div");
+  card.className = "movie";
+  card.onclick = function(){ openMovie(movie); };
+
+  const imgUrl = getValidImg(movie);
+  const imgHtml = imgUrl ? `<img src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<i class="fa-solid fa-circle-play"></i>`;
+
+  card.innerHTML = `
+    <div class="poster-box">
+      ${imgHtml}
+    </div>
+    <div class="movieName">${escapeHTML(movie.title)}</div>
+    <div class="movieMeta"><span>HD</span><span>12k views</span></div>
+  `;
+  return card;
 }
 
 function openFilteredPage(queryValue){
@@ -525,9 +598,11 @@ function openFilteredPage(queryValue){
     const card = document.createElement("div");
     card.className = "grid-movie";
     card.onclick = function(){ openMovie(movie); };
-    const imgUrl = movie.poster_url || movie.thumbnail_url || "";
+    const imgUrl = getValidImg(movie);
+    const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><i class="fa-solid fa-circle-play"></i></div>`;
+    
     card.innerHTML = `
-      <img class="grid-poster" src="${imgUrl}" loading="lazy">
+      ${imgHtml}
       <div class="movieName">${escapeHTML(movie.title)}</div>
       <div class="movieMeta"><span>HD Quality</span><span>10.2k views</span></div>
     `;
@@ -572,9 +647,11 @@ function openActorProfile(actorName) {
       const card = document.createElement("div");
       card.className = "grid-movie";
       card.onclick = function(){ openMovie(movie); };
-      const imgUrl = movie.poster_url || movie.thumbnail_url || "";
+      const imgUrl = getValidImg(movie);
+      const imgHtml = imgUrl ? `<img class="grid-poster" src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="poster-box"><i class="fa-solid fa-circle-play"></i></div>`;
+
       card.innerHTML = `
-        <img class="grid-poster" src="${imgUrl}" loading="lazy">
+        ${imgHtml}
         <div class="movieName">${escapeHTML(movie.title)}</div>
         <div class="movieMeta"><span>HD</span><span>12k views</span></div>
       `;
@@ -589,26 +666,12 @@ function closeActorProfilePage(){
   document.getElementById("actorProfilePage").style.display = "none";
 }
 
-function createCard(movie){
-  const card = document.createElement("div");
-  card.className = "movie";
-  card.onclick = function(){ openMovie(movie); };
-
-  const imgUrl = movie.poster_url || movie.thumbnail_url || "";
-  card.innerHTML = `
-    <img class="poster" src="${imgUrl}" loading="lazy">
-    <div class="movieName">${escapeHTML(movie.title)}</div>
-    <div class="movieMeta"><span>HD</span><span>12k views</span></div>
-  `;
-  return card;
-}
-
 function escapeHTML(text){
   return String(text||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
 }
 
 async function saveMovie(){
-  const editId = document.getElementById("editMovieId").value;
+  const editIdInput = document.getElementById("editMovieId").value;
   const title = document.getElementById("movieTitle").value.trim();
   const rawLink = document.getElementById("movieLink").value.trim();
   const category = document.getElementById("movieCategory").value.trim() || "General";
@@ -622,23 +685,62 @@ async function saveMovie(){
   if(!posterUrl || posterUrl === window.location.href) posterUrl = "";
 
   if(file){
-    posterUrl = await new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(file);
+    let uploaded = await uploadFileToSupabase(file);
+    if(uploaded) posterUrl = uploaded;
+  }
+
+  const movieData = { 
+    title, 
+    file_code: rawLink, 
+    poster_url: posterUrl, 
+    turboviplay_url: rawLink,
+    thumbnail_url: posterUrl,
+    category, 
+    tags, 
+    actor 
+  };
+
+  if(editIdInput && editIdInput !== "") {
+    const numericId = parseInt(editIdInput, 10);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${numericId}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(movieData)
     });
-  }
-
-  if(editId) {
-    movies = movies.map(m => m.id == editId ? { ...m, title, file_code: rawLink, category, tags, actor, poster_url: posterUrl } : m);
-    alert("✅ Video Updated Successfully!");
+    if(res.ok) {
+      alert("✅ Video Updated Successfully!");
+    } else {
+      const errText = await res.text();
+      console.error("Update failed:", errText);
+      alert("Failed to update video");
+      return;
+    }
   } else {
-    const newMovie = { id: Date.now(), title, file_code: rawLink, poster_url: posterUrl, category, tags, actor };
-    movies.unshift(newMovie);
-    alert("✅ Video Added Successfully!");
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/videos`, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(movieData)
+    });
+    if(res.ok) {
+      alert("✅ Video Added Successfully!");
+    } else {
+      const errText = await res.text();
+      console.error("Insert failed:", errText);
+      alert("Failed to add video");
+      return;
+    }
   }
 
-  localStorage.setItem('local_videos', JSON.stringify(movies));
   resetVideoForm();
   loadAllData();
 }
@@ -647,17 +749,19 @@ function editMovie(id) {
   const m = movies.find(item => item.id == id);
   if(!m) return;
   document.getElementById("editMovieId").value = m.id;
-  document.getElementById("movieTitle").value = m.title;
-  document.getElementById("movieLink").value = m.file_code;
+  document.getElementById("movieTitle").value = m.title || "";
+  document.getElementById("movieLink").value = m.file_code || m.turboviplay_url || "";
   document.getElementById("movieCategory").value = m.category || "";
   document.getElementById("movieTags").value = m.tags || "";
   document.getElementById("movieActor").value = m.actor || "";
   
   const preview = document.getElementById("preview");
-  const imgUrl = m.poster_url || m.thumbnail_url;
+  const imgUrl = getValidImg(m);
   if(imgUrl) {
     preview.src = imgUrl;
     preview.style.display = "block";
+  } else {
+    preview.style.display = "none";
   }
 
   document.getElementById("videoFormTitle").textContent = "✏️ Edit Video Entry";
@@ -682,7 +786,7 @@ function resetVideoForm() {
 }
 
 async function saveActor(){
-  const editId = document.getElementById("editActorId").value;
+  const editIdInput = document.getElementById("editActorId").value;
   const name = document.getElementById("actorName").value.trim();
   const file = document.getElementById("actorImage").files[0];
   const bannerFile = document.getElementById("actorBannerImage").files[0];
@@ -691,36 +795,49 @@ async function saveActor(){
 
   let imageUrl = document.getElementById("actorPreview").src;
   if(!imageUrl || imageUrl === window.location.href) imageUrl = "";
-
   if(file){
-    imageUrl = await new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = e => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    });
+    let uploaded = await uploadFileToSupabase(file);
+    if(uploaded) imageUrl = uploaded;
   }
 
   let bannerUrl = document.getElementById("actorBannerPreview").src;
   if(!bannerUrl || bannerUrl === window.location.href) bannerUrl = "";
-
   if(bannerFile){
-    bannerUrl = await new Promise(resolve => {
-      const reader2 = new FileReader();
-      reader2.onload = e => resolve(e.target.result);
-      reader2.readAsDataURL(bannerFile);
+    let uploadedBanner = await uploadFileToSupabase(bannerFile);
+    if(uploadedBanner) bannerUrl = uploadedBanner;
+  }
+
+  const actorData = { name, image_url: imageUrl, banner_url: bannerUrl };
+
+  if(editIdInput && editIdInput !== "") {
+    const numericId = parseInt(editIdInput, 10);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${numericId}`, {
+      method: 'PATCH',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(actorData)
     });
-  }
-
-  if(editId) {
-    performers = performers.map(p => p.id == editId ? { ...p, name, image_url: imageUrl, banner_url: bannerUrl } : p);
-    alert("✅ Actor Updated Successfully!");
+    if(res.ok) alert("✅ Actor Updated Successfully!");
+    else alert("Failed to update actor");
   } else {
-    const newActor = { id: Date.now(), name, image_url: imageUrl, banner_url: bannerUrl };
-    performers.unshift(newActor);
-    alert("✅ Actor Added Successfully!");
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/performers`, {
+      method: 'POST',
+      headers: {
+        'apikey': ANON_KEY,
+        'Authorization': 'Bearer ' + ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(actorData)
+    });
+    if(res.ok) alert("✅ Actor Added Successfully!");
+    else alert("Failed to add actor");
   }
 
-  localStorage.setItem('local_performers', JSON.stringify(performers));
   resetActorForm();
   loadAllData();
 }
@@ -729,18 +846,22 @@ function editActor(id) {
   const p = performers.find(item => item.id == id);
   if(!p) return;
   document.getElementById("editActorId").value = p.id;
-  document.getElementById("actorName").value = p.name;
+  document.getElementById("actorName").value = p.name || "";
   
   const preview = document.getElementById("actorPreview");
   if(p.image_url) {
     preview.src = p.image_url;
     preview.style.display = "block";
+  } else {
+    preview.style.display = "none";
   }
 
   const bannerPreview = document.getElementById("actorBannerPreview");
   if(p.banner_url) {
     bannerPreview.src = p.banner_url;
     bannerPreview.style.display = "block";
+  } else {
+    bannerPreview.style.display = "none";
   }
 
   document.getElementById("actorFormTitle").textContent = "✏️ Edit Actor / Performer";
@@ -768,16 +889,16 @@ function renderAdmin(){
   movies.forEach(item => {
     const div = document.createElement("div");
     div.className = "adminItem";
-    const imgUrl = item.poster_url || item.thumbnail_url || "";
+    const imgUrl = getValidImg(item);
     div.innerHTML = `
-      <img class="adminThumb" src="${imgUrl}">
+      <img class="adminThumb" src="${imgUrl}" onerror="this.style.display='none'">
       <div class="adminInfo">
         <strong>${escapeHTML(item.title)}</strong><br>
         <small style="color:#a0a6b8;">Cat: ${escapeHTML(item.category || 'General')} | Actor: ${escapeHTML(item.actor || '-')}</small>
       </div>
       <div class="adminBtns">
-        <button class="editBtn" onclick="editMovie(${item.id})">Edit</button>
-        <button class="deleteBtn" onclick="deleteMovie(${item.id})">Delete</button>
+        <button class="editBtn" onclick="editMovie('${item.id}')">Edit</button>
+        <button class="deleteBtn" onclick="deleteMovie('${item.id}')">Delete</button>
       </div>
     `;
     box.appendChild(div);
@@ -789,31 +910,47 @@ function renderAdmin(){
     const div = document.createElement("div");
     div.className = "adminItem";
     div.innerHTML = `
-      <img class="adminThumb" src="${item.image_url || ''}" style="border-radius:50%; width:35px; height:35px;">
+      <img class="adminThumb" src="${item.image_url || ''}" style="border-radius:50%; width:35px; height:35px;" onerror="this.style.display='none'">
       <div class="adminInfo">
         <strong>${escapeHTML(item.name)}</strong>
       </div>
       <div class="adminBtns">
-        <button class="editBtn" onclick="editActor(${item.id})">Edit</button>
-        <button class="deleteBtn" onclick="deleteActor(${item.id})">Delete</button>
+        <button class="editBtn" onclick="editActor('${item.id}')">Edit</button>
+        <button class="deleteBtn" onclick="deleteActor('${item.id}')">Delete</button>
       </div>
     `;
     actorBox.appendChild(div);
   });
 }
 
-function deleteMovie(id){
+async function deleteMovie(id){
   if(!confirm("Delete video?")) return;
-  movies = movies.filter(item => item.id != id);
-  localStorage.setItem('local_videos', JSON.stringify(movies));
-  loadAllData();
+  const numericId = parseInt(id, 10);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${numericId}`, {
+    method: 'DELETE',
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=representation' }
+  });
+  if(res.ok) {
+    alert("Video deleted successfully!");
+    loadAllData();
+  } else {
+    alert("Failed to delete video");
+  }
 }
 
-function deleteActor(id){
+async function deleteActor(id){
   if(!confirm("Delete performer?")) return;
-  performers = performers.filter(item => item.id != id);
-  localStorage.setItem('local_performers', JSON.stringify(performers));
-  loadAllData();
+  const numericId = parseInt(id, 10);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${numericId}`, {
+    method: 'DELETE',
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=representation' }
+  });
+  if(res.ok) {
+    alert("Performer deleted successfully!");
+    loadAllData();
+  } else {
+    alert("Failed to delete performer");
+  }
 }
 
 function openMovie(movie){
@@ -829,8 +966,13 @@ function openMovie(movie){
   videoPlayer.pause();
   videoPlayer.src = "";
 
-  imgElement.style.display = "block";
-  imgElement.src = movie.poster_url || movie.thumbnail_url || "";
+  const validImg = getValidImg(movie);
+  if(validImg) {
+    imgElement.style.display = "block";
+    imgElement.src = validImg;
+  } else {
+    imgElement.style.display = "none";
+  }
 
   const actorContainer = document.getElementById("modalActorContainer");
   let matchedActorName = movie.actor ? movie.actor.trim() : "";
@@ -868,7 +1010,8 @@ function openActorProfileFromModal(){
 
 function handleWatchClick(){
   if(!selectedMovie) return;
-  const handled = processVideoLink(selectedMovie.file_code);
+  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
+  const handled = processVideoLink(videoUrl);
 
   document.getElementById("modalImage").style.display = "none";
 
@@ -894,7 +1037,8 @@ function closeMovie(){
 
 function shareVideo(){
   if(!selectedMovie) return;
-  navigator.clipboard.writeText(selectedMovie.file_code);
+  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
+  navigator.clipboard.writeText(videoUrl);
   alert("🔗 Video link copied to clipboard!");
 }
 
@@ -975,15 +1119,15 @@ document.getElementById("search").addEventListener("input", function(){
   movies.forEach(movie => {
     if(movie.title.toLowerCase().includes(q)) {
       resultsCount++;
-      const item = document.createElement("div");
-      item.className = "suggestion-item";
-      item.innerHTML = `<i class="fa-solid fa-video"></i> <span>Video: <b>${escapeHTML(movie.title)}</b></span>`;
-      item.onclick = function(){
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "suggestion-item";
+      itemDiv.innerHTML = `<i class="fa-solid fa-video"></i> <span>Video: <b>${escapeHTML(movie.title)}</b></span>`;
+      itemDiv.onclick = function(){
         sugBox.style.display = "none";
         document.getElementById("search").value = "";
         openMovie(movie);
       };
-      sugBox.appendChild(item);
+      sugBox.appendChild(itemDiv);
     }
   });
 
