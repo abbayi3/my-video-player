@@ -77,7 +77,7 @@ header{ height:65px; display:flex; align-items:center; justify-content:space-bet
 .modalContent h2{ font-size:18px; margin-bottom:12px; }
 
 .modal-actor-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; cursor: pointer; background: #191c26; padding: 8px 12px; border-radius: 8px; border: 1px solid #272b3c; width: fit-content; }
-.modal-actor-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #e50914; }
+.modal-actor-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #e50914; display: none; }
 .modal-actor-name { font-size: 12px; font-weight: 600; color: #e1e4ed; }
 
 .action-btns{ display:flex; gap:10px; margin-top:10px; }
@@ -167,7 +167,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
   </div>
   
   <div class="actor-profile-header">
-    <img id="actorProfileAvatar" class="actor-profile-avatar" src="">
+    <img id="actorProfileAvatar" class="actor-profile-avatar" src="" onerror="this.style.display='none'">
     <div class="actor-profile-info">
       <div id="actorProfileName" class="actor-profile-name"></div>
       <div id="actorProfileCount" class="actor-profile-sub">0 Videos</div>
@@ -189,7 +189,7 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
       <h2 id="modalTitle"></h2>
       
       <div id="modalActorContainer" class="modal-actor-info" style="display:none;" onclick="openActorProfileFromModal()">
-        <img id="modalActorAvatar" class="modal-actor-avatar" src="">
+        <img id="modalActorAvatar" class="modal-actor-avatar" src="" onerror="this.style.display='none'">
         <span id="modalActorName" class="modal-actor-name"></span>
       </div>
 
@@ -221,7 +221,11 @@ footer{ text-align:center; color:#525868; padding:30px; font-size:11px; }
         <div class="group"><label>Any Link / Embed Code / StreamTape / YouTube / MP4 / Terabox Link</label><input id="movieLink" placeholder="Paste link or embed code here..."></div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
-        <div class="group"><label>Actor Name</label><input id="movieActor" placeholder="Actor/Performer Name"></div>
+        <div class="group">
+          <label>Actor Name</label>
+          <input id="movieActor" list="actorSuggestions" placeholder="Actor/Performer Name">
+          <datalist id="actorSuggestions"></datalist>
+        </div>
         <div class="group">
           <label>Thumbnail Poster</label>
           <input id="movieImage" type="file" accept="image/*">
@@ -321,9 +325,22 @@ async function loadAllData() {
   renderCategoriesBar();
   renderMovies();
   renderAdmin();
+  updateActorSuggestions();
 }
 
 loadAllData();
+
+function updateActorSuggestions() {
+  const datalist = document.getElementById("actorSuggestions");
+  datalist.innerHTML = "";
+  performers.forEach(p => {
+    if(p.name) {
+      const option = document.createElement("option");
+      option.value = p.name;
+      datalist.appendChild(option);
+    }
+  });
+}
 
 function toggleSidebar() {
   const sidebar = document.getElementById("sidebar");
@@ -625,7 +642,13 @@ function openActorProfile(actorName) {
   const grid = document.getElementById("actorProfileGrid");
 
   const performerObj = performers.find(p => p.name.toLowerCase() === actorName.toLowerCase());
-  avatarEl.src = performerObj && performerObj.image_url ? performerObj.image_url : "";
+  if (performerObj && performerObj.image_url && performerObj.image_url.trim() !== '') {
+    avatarEl.src = performerObj.image_url;
+    avatarEl.style.display = "block";
+  } else {
+    avatarEl.style.display = "none";
+  }
+
   bannerEl.src = performerObj && performerObj.banner_url ? performerObj.banner_url : (performerObj && performerObj.image_url ? performerObj.image_url : "");
   nameEl.textContent = actorName;
 
@@ -700,49 +723,43 @@ async function saveMovie(){
     actor 
   };
 
-  if(editIdInput && editIdInput !== "") {
-    const numericId = parseInt(editIdInput, 10);
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${numericId}`, {
-      method: 'PATCH',
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': 'Bearer ' + ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(movieData)
-    });
-    if(res.ok) {
-      alert("✅ Video Updated Successfully!");
+  try {
+    let res;
+    if(editIdInput && editIdInput !== "") {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${editIdInput}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(movieData)
+      });
     } else {
-      const errText = await res.text();
-      console.error("Update failed:", errText);
-      alert("Failed to update video");
-      return;
+      res = await fetch(`${SUPABASE_URL}/rest/v1/videos`, {
+        method: 'POST',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(movieData)
+      });
     }
-  } else {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/videos`, {
-      method: 'POST',
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': 'Bearer ' + ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(movieData)
-    });
-    if(res.ok) {
-      alert("✅ Video Added Successfully!");
-    } else {
-      const errText = await res.text();
-      console.error("Insert failed:", errText);
-      alert("Failed to add video");
-      return;
-    }
-  }
 
-  resetVideoForm();
-  loadAllData();
+    if(res.ok) {
+      alert(editIdInput ? "✅ Video Updated Successfully!" : "✅ Video Added Successfully!");
+      resetVideoForm();
+      loadAllData();
+    } else {
+      const errText = await res.text();
+      alert("Failed to save video: " + errText);
+    }
+  } catch(e) {
+    alert("An error occurred. Check connection.");
+  }
 }
 
 function editMovie(id) {
@@ -809,37 +826,43 @@ async function saveActor(){
 
   const actorData = { name, image_url: imageUrl, banner_url: bannerUrl };
 
-  if(editIdInput && editIdInput !== "") {
-    const numericId = parseInt(editIdInput, 10);
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${numericId}`, {
-      method: 'PATCH',
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': 'Bearer ' + ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(actorData)
-    });
-    if(res.ok) alert("✅ Actor Updated Successfully!");
-    else alert("Failed to update actor");
-  } else {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/performers`, {
-      method: 'POST',
-      headers: {
-        'apikey': ANON_KEY,
-        'Authorization': 'Bearer ' + ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify(actorData)
-    });
-    if(res.ok) alert("✅ Actor Added Successfully!");
-    else alert("Failed to add actor");
-  }
+  try {
+    let res;
+    if(editIdInput && editIdInput !== "") {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${editIdInput}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(actorData)
+      });
+    } else {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/performers`, {
+        method: 'POST',
+        headers: {
+          'apikey': ANON_KEY,
+          'Authorization': 'Bearer ' + ANON_KEY,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(actorData)
+      });
+    }
 
-  resetActorForm();
-  loadAllData();
+    if(res.ok) {
+      alert(editIdInput ? "✅ Actor Updated Successfully!" : "✅ Actor Added Successfully!");
+      resetActorForm();
+      loadAllData();
+    } else {
+      const errText = await res.text();
+      alert("Failed to save actor: " + errText);
+    }
+  } catch(e) {
+    alert("An error occurred. Check connection.");
+  }
 }
 
 function editActor(id) {
@@ -925,10 +948,9 @@ function renderAdmin(){
 
 async function deleteMovie(id){
   if(!confirm("Delete video?")) return;
-  const numericId = parseInt(id, 10);
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${numericId}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${id}`, {
     method: 'DELETE',
-    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=representation' }
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
   if(res.ok) {
     alert("Video deleted successfully!");
@@ -940,10 +962,9 @@ async function deleteMovie(id){
 
 async function deleteActor(id){
   if(!confirm("Delete performer?")) return;
-  const numericId = parseInt(id, 10);
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${numericId}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${id}`, {
     method: 'DELETE',
-    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=representation' }
+    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
   if(res.ok) {
     alert("Performer deleted successfully!");
@@ -975,6 +996,7 @@ function openMovie(movie){
   }
 
   const actorContainer = document.getElementById("modalActorContainer");
+  const actorAvatarImg = document.getElementById("modalActorAvatar");
   let matchedActorName = movie.actor ? movie.actor.trim() : "";
   let matchedActor = performers.find(p => p.name.toLowerCase() === matchedActorName.toLowerCase());
   
@@ -983,12 +1005,17 @@ function openMovie(movie){
   }
 
   if(matchedActor) {
-    document.getElementById("modalActorAvatar").src = matchedActor.image_url || "";
+    if(matchedActor.image_url && matchedActor.image_url.trim() !== '') {
+      actorAvatarImg.src = matchedActor.image_url;
+      actorAvatarImg.style.display = "block";
+    } else {
+      actorAvatarImg.style.display = "none";
+    }
     document.getElementById("modalActorName").textContent = matchedActor.name;
     actorContainer.style.display = "flex";
     actorContainer.dataset.actorName = matchedActor.name;
   } else if(movie.actor) {
-    document.getElementById("modalActorAvatar").src = "";
+    actorAvatarImg.style.display = "none";
     document.getElementById("modalActorName").textContent = movie.actor;
     actorContainer.style.display = "flex";
     actorContainer.dataset.actorName = movie.actor;
