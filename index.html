@@ -19,9 +19,9 @@
 
 [data-theme="light"] {
   --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
-  --glass-bg: rgba(255, 255, 255, 0.45);
-  --glass-header: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.3);
+  --glass-bg: rgba(255, 255, 255, 0.35);
+  --glass-header: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   --text-color: #0f172a;
   --subtext-color: #475569;
@@ -134,30 +134,46 @@ header{
 .sidebar-menu-list button{ width:100%; text-align:left; background:none; border:none; color:var(--subtext-color); padding:12px 10px; border-radius:10px; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:0.3s ease; }
 .sidebar-menu-list button:hover{ background:var(--accent-color); color:white; font-weight:bold; }
 
-/* Tags Row (Top) */
-.categories-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; flex-shrink: 0; }
-.categories-row::-webkit-scrollbar { display: none; }
-.badge { 
-  background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-color); font-size: 11px; font-weight: 600; padding: 6px 14px; border-radius: 20px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; backdrop-filter: blur(10px); 
-}
-.badge.active, .badge:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
-
-/* Promotional Banner Ad Section */
+/* Promotional Banner Ads Horizontal Slider Container with Fixed Overlay Tags */
 .promo-banner-container {
-  padding: 10px 14px;
+  padding: 12px 0 0 0;
   width: 100%;
+  position: relative;
 }
+
+.ads-slider-wrapper {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 14px 10px 14px;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+.ads-slider-wrapper::-webkit-scrollbar { display: none; }
+
 .promo-banner {
-  width: 100%;
-  height: 200px;
-  border-radius: 16px;
+  min-width: calc(100vw - 28px);
+  width: calc(100vw - 28px);
+  max-width: 700px;
+  height: 290px; 
+  border-radius: 18px;
   overflow: hidden;
   position: relative;
   border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   background: var(--glass-bg);
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
+
+.promo-banner:active, .promo-banner:hover {
+  transform: scale(0.98);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.6);
+}
+
 .promo-banner img {
   width: 100%;
   height: 100%;
@@ -166,44 +182,122 @@ header{
 
 .promo-badge {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.7);
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.75);
   color: #fbbf24;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: bold;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
   backdrop-filter: blur(6px);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  border: 1px solid rgba(251, 191, 36, 0.4);
   z-index: 5;
 }
 
+/* Fixed Category Tags Overlay */
+.fixed-categories-overlay {
+  position: absolute;
+  top: 24px;
+  left: 26px;
+  right: 90px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 25;
+  pointer-events: auto;
+}
+.fixed-categories-overlay::-webkit-scrollbar { display: none; }
+
+.badge { 
+  background: var(--glass-header); 
+  border: 1px solid var(--glass-border); 
+  color: var(--text-color); 
+  font-size: 11px; 
+  font-weight: 600; 
+  padding: 5px 12px; 
+  border-radius: 20px; 
+  white-space: nowrap; 
+  cursor: pointer; 
+  transition: all 0.2s ease; 
+  backdrop-filter: blur(12px); 
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--glass-shadow); 
+}
+.badge.active, .badge:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4); }
+
 /* Performers Row */
-.performers-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 15px; scrollbar-width: none; }
+.performers-section {
+  position: relative;
+  z-index: 20;
+  margin-top: -38px;
+  padding: 0 14px;
+}
+.performers-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
 .performers-row::-webkit-scrollbar { display: none; }
 .performer-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
 
 .avatar-box { 
-  width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color); background: var(--glass-bg); display: flex; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); 
+  width: 62px; height: 62px; border-radius: 50%; border: 2.5px solid var(--accent-color); background: var(--glass-header); display: flex; align-items: center; justify-content: center; overflow: hidden; backdrop-filter: blur(12px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); 
 }
 .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-.performer-name { font-size: 10px; color: var(--subtext-color); max-width: 65px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+.performer-name { font-size: 10px; color: var(--text-color); font-weight: 600; max-width: 65px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 
-.section{ padding:15px 14px; }
+.section{ padding:12px 14px; }
 .section-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .title{ font-size:16px; text-transform:capitalize; font-weight:bold; }
 .see-more-btn{ color:var(--accent-color); font-size:20px; font-weight:bold; cursor:pointer; }
 
 .row{ display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding-bottom: 5px; }
-.movie{ width:150px; min-width:150px; cursor:pointer; background: transparent; border: none; flex-shrink: 0; }
 
+.movie{ width:140px; min-width:140px; cursor:pointer; background: transparent; border: none; flex-shrink: 0; }
 .poster-box { 
-  width:100%; height:95px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius:12px; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); 
+  width:100%; 
+  aspect-ratio: 16 / 10;
+  background: var(--glass-bg); 
+  border: 1px solid var(--glass-border); 
+  border-radius:10px; 
+  overflow:hidden; 
+  position:relative; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  backdrop-filter: blur(10px); 
+  box-shadow: var(--glass-shadow); 
 }
 .poster-box img { width:100%; height:100%; object-fit:cover; }
-.movieName{ padding: 6px 2px 2px 2px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color: var(--text-color); }
-.movieMeta{ padding: 0 2px 6px 2px; color:var(--subtext-color); font-size:9px; display: flex; justify-content: space-between; }
+.movieName{ padding: 5px 2px 2px 2px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color: var(--text-color); }
+.movieMeta{ padding: 0 2px 5px 2px; color:var(--subtext-color); font-size:9px; display: flex; justify-content: space-between; }
+
+/* Vertical Full-Width 16:9 Feed for Trending Videos */
+.vertical-video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+.vertical-video-item {
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.vertical-poster-box {
+  width: 100%;
+  height: 180px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--glass-shadow);
+}
+.vertical-poster-box img { width: 100%; height: 100%; object-fit: cover; }
 
 /* Fixed Pages */
 .category-page, .actor-profile-page{ 
@@ -216,15 +310,68 @@ header{
 
 .grid-container{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; padding:15px; width:100%; }
 .grid-movie{ cursor:pointer; width:100%; display: flex; flex-direction: column; }
-.grid-poster { width: 100%; height: 110px; object-fit: cover; border-radius: 12px; border: 1px solid var(--glass-border); }
+.grid-poster { 
+  width: 100%; 
+  aspect-ratio: 16 / 9; 
+  object-fit: cover; 
+  border-radius: 14px; 
+  border: 1px solid var(--glass-border); 
+  box-shadow: var(--glass-shadow); 
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.grid-poster:hover {
+  transform: scale(0.98);
+  box-shadow: 0 12px 35px rgba(229, 9, 20, 0.4);
+}
 
-/* Actor Profile Styles */
-.actor-profile-banner { position: relative; width: 100%; height: 180px; background: var(--glass-bg); overflow: hidden; }
+/* Actor Profile Styles - Exact Fit Compact Box & Glassmorphism */
+.actor-profile-banner { 
+  position: relative; 
+  width: 100%; 
+  height: 220px; 
+  background: var(--glass-bg); 
+  overflow: hidden; 
+  box-shadow: var(--glass-shadow);
+}
 .actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; }
-.actor-profile-header { display: flex; align-items: center; gap: 16px; padding: 15px; position: relative; margin-top: -35px; margin-left: 5px; width: calc(100% - 10px); }
-.actor-profile-avatar { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-color); background: var(--glass-bg); flex-shrink: 0; box-shadow: var(--glass-shadow); }
 
-/* Full-Screen Free Video Modal */
+.actor-profile-header { 
+  display: inline-flex; 
+  align-items: center; 
+  gap: 12px; 
+  padding: 10px 16px; 
+  position: relative; 
+  margin-top: -32px; 
+  margin-left: 14px; 
+  width: fit-content; 
+  min-width: 220px;
+  background: var(--glass-header);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), var(--glass-shadow);
+}
+
+.actor-profile-avatar { 
+  width: 50px; 
+  height: 50px; 
+  border-radius: 50%; 
+  object-fit: cover; 
+  border: 2px solid var(--accent-color); 
+  background: var(--glass-bg); 
+  flex-shrink: 0; 
+  box-shadow: 0 4px 15px rgba(0,0,0,0.25); 
+}
+
+.actor-profile-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* Full-Screen Video Modal */
 .modal{ 
   position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:500; overflow-y:auto; 
 }
@@ -236,8 +383,30 @@ header{
 
 .modalMediaContainer{ width:100%; aspect-ratio: 16/9; background:#000; position:relative; }
 .modalImage{ width:100%; height:100%; object-fit:cover; }
-.modalIframe, .modalVideo{ width:100%; height:100%; border:0; display:none; position:absolute; inset:0; }
-.close-icon{ position:absolute; top:12px; right:12px; background:rgba(0,0,0,0.7); color:white; border:0; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; z-index:20; backdrop-filter: blur(6px); border:1px solid var(--glass-border); }
+.modalIframe, .modalVideo{ width:100%; height:100%; border:0; display:none; position:absolute; inset:0; object-fit:contain; }
+
+.player-custom-buttons {
+  position: absolute;
+  bottom: 12px;
+  right: 75px;
+  display: none;
+  gap: 6px;
+  z-index: 35;
+}
+.skip-btn-pill {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+.skip-btn-pill:active { transform: scale(0.9); }
+
+.back-arrow-btn{ position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.7); color:white; border:0; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; z-index:20; backdrop-filter: blur(6px); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; }
 .modalContent{ padding:20px 15px; }
 
 .modal-actor-info { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; background: var(--glass-bg); padding: 8px 14px; border-radius: 12px; border: 1px solid var(--glass-border); width: fit-content; }
@@ -257,7 +426,8 @@ header{
 .adminContent{ max-width:600px; margin:auto; padding:20px; width:100%; }
 .group{ margin-bottom:15px; }
 .group label{ display:block; color:var(--subtext-color); font-size:12px; margin-bottom:6px; }
-.group input, .group select{ width:100%; padding:12px; background:var(--glass-bg); color:var(--text-color); border:1px solid var(--glass-border); border-radius:12px; outline:none; font-size:12px; }
+.group input, .group select, .group textarea{ width:100%; padding:12px; background:var(--glass-bg); color:var(--text-color); border:1px solid var(--glass-border); border-radius:12px; outline:none; font-size:12px; }
+.group textarea{ resize:vertical; min-height:70px; }
 .group select option { background: #0f172a; color: #fff; }
 
 .addBtn{ width:100%; padding:12px; border:0; border-radius:12px; background:var(--accent-color); color:white; font-weight:bold; cursor:pointer; margin-top:5px; }
@@ -302,20 +472,20 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   <div style="font-size:11px; color:var(--subtext-color); text-align:center; padding-top:20px;">StreamHub Glass Edition</div>
 </div>
 
-<!-- 1. Tags Row (Top) -->
-<div class="section" style="padding-top: 12px; padding-bottom: 0;">
-  <div id="categoriesRow" class="categories-row"></div>
+<!-- Promotional Banner Ads Container with Fixed Overlay Tags -->
+<div id="promoBannerWrapper" class="promo-banner-container" style="display:none; position:relative;">
+  <div id="fixedCategoriesOverlay" class="fixed-categories-overlay"></div>
 </div>
 
-<!-- 2. Promo Banner Ad Container -->
-<div id="promoBannerWrapper" class="promo-banner-container" style="display:none;"></div>
-
-<!-- 3. Performers Row -->
-<div class="section" style="padding-top: 0; padding-bottom: 5px;">
+<!-- Performers Row -->
+<div class="performers-section">
   <div id="performersRow" class="performers-row"></div>
 </div>
 
-<!-- 4. Categories & Videos Grid -->
+<!-- Trending Videos Section (One below another) -->
+<div id="randomVideosContainer"></div>
+
+<!-- Dynamic Category Sections -->
 <div id="dynamicCategoriesContainer"></div>
 
 <footer>© 2026 StreamHub</footer>
@@ -343,24 +513,29 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   <div class="actor-profile-header">
     <img id="actorProfileAvatar" class="actor-profile-avatar" src="" onerror="this.style.display='none'">
     <div class="actor-profile-info">
-      <div id="actorProfileName" class="actor-profile-name" style="font-size:18px; font-weight:bold;"></div>
-      <div id="actorProfileCount" class="actor-profile-sub" style="font-size:12px; color:var(--subtext-color);">0 Videos</div>
+      <div id="actorProfileName" class="actor-profile-name" style="font-size:14px; font-weight:bold;"></div>
+      <div id="actorProfileCount" class="actor-profile-sub" style="font-size:10px; color:var(--subtext-color);">0 Videos</div>
     </div>
   </div>
 
-  <div id="actorProfileGrid" class="grid-container" style="margin-top: 10px;"></div>
+  <div id="actorProfileGrid" class="grid-container" style="margin-top: 15px;"></div>
 </div>
 
-<!-- Video Modal (Avcaption & Clean Player support) -->
+<!-- Video Modal -->
 <div id="movieModal" class="modal">
   <div class="modalBox">
-    <button class="close-icon" onclick="closeMovie()">✕</button>
+    <button class="back-arrow-btn" onclick="closeMovie()">←</button>
     <div class="modalMediaContainer">
       <img id="modalImage" class="modalImage" src="">
-      <!-- Avcaption compatible iframe & video player configuration -->
-      <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen allow="autoplay; encrypted-media; fullscreen" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"></iframe>
-      <video id="modalVideoPlayer" class="modalVideo" controls autoplay></video>
+      <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
+      
+      <video id="modalVideoPlayer" class="modalVideo" controls playsinline></video>
+      <div id="playerCustomButtons" class="player-custom-buttons">
+        <button class="skip-btn-pill" onclick="skipVideoTime(-10)">-10s</button>
+        <button class="skip-btn-pill" onclick="skipVideoTime(10)">+10s</button>
+      </div>
     </div>
+
     <div class="modalContent">
       <h2 id="modalTitle" style="font-size:20px; margin-bottom:12px;"></h2>
       
@@ -374,7 +549,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
         <button class="btn-action" style="background:var(--glass-bg); color:var(--text-color); flex: 0.4; border:1px solid var(--glass-border);" onclick="shareVideo()">🔗 Share</button>
       </div>
 
-      <!-- Category Suggestions Section inside Video Modal -->
       <div class="modal-suggestions-title">Recommended Videos</div>
       <div id="modalSuggestionsGrid" class="grid-container" style="padding:0; margin-top:10px;"></div>
     </div>
@@ -389,7 +563,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   </div>
   <div class="adminContent">
     
-    <!-- Video Form Section -->
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secMovie', 'iconMovie')">
         <h3 id="videoFormTitle" style="color:var(--accent-color);">🎬 Add Video Entry</h3>
@@ -398,7 +571,10 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secMovie" class="accordion-body">
         <input type="hidden" id="editMovieId">
         <div class="group"><label>Video Title</label><input id="movieTitle" placeholder="Title"></div>
-        <div class="group"><label>Avcaption Embed Link / Direct Video URL / MP4 / M3U8</label><input id="movieLink" placeholder="Paste Avcaption embed link here..."></div>
+        <div class="group">
+          <label>Bunny.net / Direct MP4 / M3U8 Link</label>
+          <textarea id="movieLink" placeholder="Paste Direct Link..."></textarea>
+        </div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
         <div class="group">
@@ -416,7 +592,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       </div>
     </div>
 
-    <!-- Actor Form Section -->
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secActor', 'iconActor')">
         <h3 id="actorFormTitle" style="color:var(--accent-color);">👤 Add Actor / Performer</h3>
@@ -425,25 +600,21 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secActor" class="accordion-body">
         <input type="hidden" id="editActorId">
         <div class="group"><label>Actor Name</label><input id="actorName" placeholder="Performer name"></div>
-        
         <div class="group">
           <label>Actor Profile Avatar</label>
           <input id="actorImage" type="file" accept="image/*">
           <img id="actorPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
         </div>
-
         <div class="group">
           <label>Actor Banner Thumbnail</label>
           <input id="actorBannerImage" type="file" accept="image/*">
           <img id="actorBannerPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
         </div>
-
         <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor</button>
         <button id="actorCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetActorForm()">Cancel Edit</button>
       </div>
     </div>
 
-    <!-- Ads Manager Section -->
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secAd', 'iconAd')">
         <h3 id="adFormTitle" style="color:#fbbf24;">📢 Manage Banner Ads</h3>
@@ -452,13 +623,11 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secAd" class="accordion-body">
         <input type="hidden" id="editAdId">
         <div class="group"><label>Ad Title / Description</label><input id="adTitle" placeholder="e.g. Special Offer Ad"></div>
-        
         <div class="group">
           <label>Ad Banner Image</label>
           <input id="adImageFile" type="file" accept="image/*">
           <img id="adPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
         </div>
-
         <div class="group">
           <label>Link Type</label>
           <select id="adTargetType" onchange="toggleAdTargetInputs()">
@@ -469,28 +638,22 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
             <option value="tag">Tag (e.g. Recently Added)</option>
           </select>
         </div>
-
         <div class="group" id="adTargetValueContainer">
           <label id="adTargetLabel">Target URL</label>
-          <input id="adTargetValue" placeholder="https://example.com or Video ID / Category name...">
+          <input id="adTargetValue" placeholder="https://example.com or Video ID...">
         </div>
-
         <button id="adSubmitBtn" class="addBtn" style="background:#fbbf24; color:#000;" onclick="saveAd()">Save Banner Ad</button>
         <button id="adCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetAdForm()">Cancel Edit</button>
-
         <div style="margin-top: 15px;" id="adminAdsList"></div>
       </div>
     </div>
 
-    <!-- Lists -->
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secItems', 'iconItems')">
         <h3>📹 Videos List</h3>
         <span id="iconItems">▼</span>
       </div>
-      <div id="secItems" class="accordion-body">
-        <div id="adminMovies"></div>
-      </div>
+      <div id="secItems" class="accordion-body"><div id="adminMovies"></div></div>
     </div>
 
     <div class="admin-card-section">
@@ -498,9 +661,7 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
         <h3>👥 Performers List</h3>
         <span id="iconActorsList">▼</span>
       </div>
-      <div id="secActorsList" class="accordion-body">
-        <div id="adminActors"></div>
-      </div>
+      <div id="secActorsList" class="accordion-body"><div id="adminActors"></div></div>
     </div>
 
   </div>
@@ -515,6 +676,8 @@ let performers = [];
 let ads = [];
 let selectedMovie = null;
 let activeTagFilter = '';
+let adAutoSlideInterval = null;
+let currentAdIndex = 0;
 
 function toggleTheme() {
   const body = document.body;
@@ -557,18 +720,43 @@ async function loadAllData() {
     if(!Array.isArray(ads)) ads = [];
 
   } catch(err) {
-    console.error("Error loading data from Supabase:", err);
+    console.error("Error loading data:", err);
   }
 
-  renderCategoriesBar();
-  renderPerformers();
+  renderFixedOverlayTags();
   renderAdsBanner();
+  startAutoSlideAds();
+  renderPerformers();
   renderMovies();
   renderAdmin();
   updateActorSuggestions();
 }
 
 loadAllData();
+
+function startAutoSlideAds() {
+  if (adAutoSlideInterval) clearInterval(adAutoSlideInterval);
+  
+  adAutoSlideInterval = setInterval(() => {
+    const slider = document.querySelector('.ads-slider-wrapper');
+    if (!slider) return;
+    const banners = slider.querySelectorAll('.promo-banner');
+    if (banners.length <= 1) return;
+
+    currentAdIndex++;
+    if (currentAdIndex >= banners.length) {
+      currentAdIndex = 0;
+    }
+
+    const targetBanner = banners[currentAdIndex];
+    if (targetBanner) {
+      slider.scrollTo({
+        left: targetBanner.offsetLeft - slider.offsetLeft - 14,
+        behavior: 'smooth'
+      });
+    }
+  }, 5000);
+}
 
 function updateActorSuggestions() {
   const datalist = document.getElementById("actorSuggestions");
@@ -625,23 +813,19 @@ function toggleAdTargetInputs() {
   if(type === 'video') label.textContent = "Video Title or ID";
   else if(type === 'category') label.textContent = "Category Name";
   else if(type === 'actor') label.textContent = "Actor Name";
-  else if(type === 'tag') label.textContent = "Tag Name (e.g. Recently Added)";
+  else if(type === 'tag') label.textContent = "Tag Name";
   else label.textContent = "Target Website URL";
 }
 
 function processVideoLink(input) {
   if (!input) return { type: 'iframe', url: '' };
   let target = input.trim();
-  const srcMatch = target.match(/src=["']([^"']+)["']/);
-  if (srcMatch) target = srcMatch[1];
-  
+
+  const srcMatch = target.match(/src=["']([^"']+)["']/i);
+  if (srcMatch && srcMatch[1]) target = srcMatch[1];
+
   if (target.match(/\.(mp4|webm|ogg|m3u8)(\?.*)?$/i) || target.startsWith("blob:")) {
     return { type: 'video', url: target };
-  }
-  
-  // Avcaption or generic embed link parser
-  if (target.includes("avcaption.com")) {
-    return { type: 'iframe', url: target };
   }
 
   let ytMatch = target.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
@@ -725,15 +909,16 @@ async function uploadFileToSupabase(file) {
   return "";
 }
 
-function renderCategoriesBar() {
-  const row = document.getElementById('categoriesRow');
-  row.innerHTML = '';
+function renderFixedOverlayTags() {
+  const overlayContainer = document.getElementById("fixedCategoriesOverlay");
+  if(!overlayContainer) return;
+  overlayContainer.innerHTML = '';
 
   const allBadge = document.createElement('span');
   allBadge.className = `badge ${activeTagFilter === '' ? 'active' : ''}`;
   allBadge.textContent = 'All';
-  allBadge.onclick = () => filterByTag('');
-  row.appendChild(allBadge);
+  allBadge.onclick = (e) => { e.stopPropagation(); filterByTag(''); };
+  overlayContainer.appendChild(allBadge);
 
   let allTags = [];
   movies.forEach(m => {
@@ -749,8 +934,8 @@ function renderCategoriesBar() {
     const badge = document.createElement('span');
     badge.className = `badge ${activeTagFilter.toLowerCase() === tag.toLowerCase() ? 'active' : ''}`;
     badge.textContent = tag;
-    badge.onclick = () => filterByTag(tag);
-    row.appendChild(badge);
+    badge.onclick = (e) => { e.stopPropagation(); filterByTag(tag); };
+    overlayContainer.appendChild(badge);
   });
 }
 
@@ -777,15 +962,27 @@ function renderAdsBanner() {
     wrapper.innerHTML = "";
     return;
   }
-  const ad = ads[0];
   wrapper.style.display = "block";
 
-  wrapper.innerHTML = `
-    <div class="promo-banner" onclick="handleAdClick('${escapeHTML(ad.target_type)}', '${escapeHTML(ad.target_value)}')">
-      <img src="${escapeHTML(ad.image_url)}" onerror="this.parentElement.style.display='none'">
-      <div class="promo-badge">Sponsored AD</div>
-    </div>
-  `;
+  let sliderHtml = `<div class="ads-slider-wrapper">`;
+  
+  ads.forEach((ad) => {
+    sliderHtml += `
+      <div class="promo-banner" onclick="handleAdClick('${escapeHTML(ad.target_type)}', '${escapeHTML(ad.target_value)}')">
+        <img src="${escapeHTML(ad.image_url)}" onerror="this.parentElement.style.display='none'">
+        <div class="promo-badge">AD</div>
+      </div>
+    `;
+  });
+
+  sliderHtml += `</div>`;
+  wrapper.innerHTML = sliderHtml;
+  
+  const fixedOverlay = document.createElement('div');
+  fixedOverlay.id = 'fixedCategoriesOverlay';
+  fixedOverlay.className = 'fixed-categories-overlay';
+  wrapper.appendChild(fixedOverlay);
+  renderFixedOverlayTags();
 }
 
 function handleAdClick(type, val) {
@@ -809,14 +1006,18 @@ function showAllHomeMovies(){
   closeCategoryPage();
   closeActorProfilePage();
   activeTagFilter = '';
-  renderCategoriesBar();
+  renderAdsBanner();
+  startAutoSlideAds();
   renderMovies();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function renderMovies(){
-  const container = document.getElementById("dynamicCategoriesContainer");
-  container.innerHTML = "";
+  const randomContainer = document.getElementById("randomVideosContainer");
+  const categoriesContainer = document.getElementById("dynamicCategoriesContainer");
+  
+  randomContainer.innerHTML = "";
+  categoriesContainer.innerHTML = "";
 
   let listToDisplay = movies;
   if(activeTagFilter !== '') {
@@ -826,6 +1027,41 @@ function renderMovies(){
     });
   }
 
+  // 1. TRENDING VIDEOS (Vertical Stack)
+  if (listToDisplay.length > 0) {
+    const randomMovies = [...listToDisplay].sort(() => 0.5 - Math.random());
+    
+    const randomSection = document.createElement("section");
+    randomSection.className = "section";
+    
+    const headerDiv = document.createElement("div");
+    headerDiv.className = "section-header";
+
+    const titleDiv = document.createElement("div");
+    titleDiv.className = "title";
+    titleDiv.textContent = "Trending Videos";
+
+    const seeMoreBtn = document.createElement("div");
+    seeMoreBtn.className = "see-more-btn";
+    seeMoreBtn.innerHTML = "›";
+    seeMoreBtn.onclick = function(){ openFilteredPage("Trending"); };
+
+    headerDiv.appendChild(titleDiv);
+    headerDiv.appendChild(seeMoreBtn);
+    randomSection.appendChild(headerDiv);
+
+    const verticalList = document.createElement("div");
+    verticalList.className = "vertical-video-list";
+
+    randomMovies.forEach(movie => {
+      verticalList.appendChild(createVerticalCard(movie));
+    });
+
+    randomSection.appendChild(verticalList);
+    randomContainer.appendChild(randomSection);
+  }
+
+  // 2. CATEGORIES SECTIONS
   let allCategories = [...new Set(listToDisplay.map(m => m.category ? m.category.trim() : "General"))];
 
   allCategories.forEach(cat => {
@@ -859,7 +1095,7 @@ function renderMovies(){
       });
 
       section.appendChild(rowDiv);
-      container.appendChild(section);
+      categoriesContainer.appendChild(section);
     }
   });
 }
@@ -882,6 +1118,24 @@ function createCard(movie){
   return card;
 }
 
+function createVerticalCard(movie){
+  const card = document.createElement("div");
+  card.className = "vertical-video-item";
+  card.onclick = function(){ openMovie(movie); };
+
+  const imgUrl = getValidImg(movie);
+  const imgHtml = imgUrl ? `<img src="${imgUrl}" loading="lazy" onerror="this.style.display='none'">` : `<span>▶</span>`;
+
+  card.innerHTML = `
+    <div class="vertical-poster-box">
+      ${imgHtml}
+    </div>
+    <div class="movieName" style="font-size:13px; font-weight:bold; margin-top:4px;">${escapeHTML(movie.title)}</div>
+    <div class="movieMeta"><span>HD Quality</span><span>12k views</span></div>
+  `;
+  return card;
+}
+
 function openFilteredPage(queryValue){
   const page = document.getElementById("categoryPage");
   const titleHead = document.getElementById("categoryPageTitle");
@@ -892,7 +1146,8 @@ function openFilteredPage(queryValue){
 
   const qLower = queryValue.toLowerCase();
   const filteredItems = movies.filter(m => {
-    const cat = (m.category || "").toLowerCase();
+    if(qLower === 'trending') return true;
+    const cat = (m.category || "general").toLowerCase();
     const title = (m.title || "").toLowerCase();
     const tags = (m.tags || "").toLowerCase();
     const actor = (m.actor || "").toLowerCase();
@@ -987,12 +1242,14 @@ function openMovie(movie){
   const imgElement = document.getElementById("modalImage");
   const iframeElement = document.getElementById("modalTrailerFrame");
   const videoPlayer = document.getElementById("modalVideoPlayer");
+  const customBtns = document.getElementById("playerCustomButtons");
 
   iframeElement.style.display = "none";
   iframeElement.src = "";
   videoPlayer.style.display = "none";
   videoPlayer.pause();
   videoPlayer.src = "";
+  customBtns.style.display = "none";
 
   const validImg = getValidImg(movie);
   if(validImg) {
@@ -1076,8 +1333,8 @@ function openActorProfileFromModal(){
 
 function handleWatchClick(){
   if(!selectedMovie) return;
-  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
-  const handled = processVideoLink(videoUrl);
+  const rawVideoCode = selectedMovie.file_code || selectedMovie.turboviplay_url;
+  const handled = processVideoLink(rawVideoCode);
 
   document.getElementById("modalImage").style.display = "none";
 
@@ -1086,10 +1343,19 @@ function handleWatchClick(){
     videoPlayer.style.display = "block";
     videoPlayer.src = handled.url;
     videoPlayer.play();
+    document.getElementById("playerCustomButtons").style.display = "flex";
   } else {
     const iframeElement = document.getElementById("modalTrailerFrame");
     iframeElement.style.display = "block";
     iframeElement.src = handled.url;
+    document.getElementById("playerCustomButtons").style.display = "none";
+  }
+}
+
+function skipVideoTime(seconds) {
+  const videoPlayer = document.getElementById("modalVideoPlayer");
+  if(videoPlayer && videoPlayer.style.display === "block") {
+    videoPlayer.currentTime += seconds;
   }
 }
 
@@ -1099,18 +1365,20 @@ function closeMovie(){
   const videoPlayer = document.getElementById("modalVideoPlayer");
   videoPlayer.pause();
   videoPlayer.src = "";
+  document.getElementById("playerCustomButtons").style.display = "none";
 }
 
 function shareVideo(){
   if(!selectedMovie) return;
-  const videoUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
-  navigator.clipboard.writeText(videoUrl);
+  const rawUrl = selectedMovie.file_code || selectedMovie.turboviplay_url;
+  const handled = processVideoLink(rawUrl);
+  navigator.clipboard.writeText(handled.url);
   alert("🔗 Video link copied to clipboard!");
 }
 
 function filterByTag(tag) {
   activeTagFilter = tag;
-  renderCategoriesBar();
+  renderFixedOverlayTags();
   renderMovies();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -1118,13 +1386,13 @@ function filterByTag(tag) {
 async function saveMovie(){
   const editIdInput = document.getElementById("editMovieId").value;
   const title = document.getElementById("movieTitle").value.trim();
-  const rawLink = document.getElementById("movieLink").value.trim();
+  const rawInput = document.getElementById("movieLink").value.trim();
   const category = document.getElementById("movieCategory").value.trim() || "General";
   const tags = document.getElementById("movieTags").value.trim();
   const actor = document.getElementById("movieActor").value.trim();
   const file = document.getElementById("movieImage").files[0];
 
-  if(!title || !rawLink) return alert("Title and Link required!");
+  if(!title || !rawInput) return alert("Title and Link required!");
 
   let posterUrl = document.getElementById("preview").src;
   if(!posterUrl || posterUrl === window.location.href) posterUrl = "";
@@ -1136,9 +1404,9 @@ async function saveMovie(){
 
   const movieData = { 
     title, 
-    file_code: rawLink, 
+    file_code: rawInput, 
     poster_url: posterUrl, 
-    turboviplay_url: rawLink,
+    turboviplay_url: rawInput,
     thumbnail_url: posterUrl,
     category, 
     tags, 
@@ -1150,23 +1418,13 @@ async function saveMovie(){
     if(editIdInput && editIdInput !== "") {
       res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${editIdInput}`, {
         method: 'PATCH',
-        headers: {
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(movieData)
       });
     } else {
       res = await fetch(`${SUPABASE_URL}/rest/v1/videos`, {
         method: 'POST',
-        headers: {
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(movieData)
       });
     }
@@ -1176,11 +1434,10 @@ async function saveMovie(){
       resetVideoForm();
       loadAllData();
     } else {
-      const errText = await res.text();
-      alert("Failed to save video: " + errText);
+      alert("Failed to save video.");
     }
   } catch(e) {
-    alert("An error occurred. Check connection.");
+    alert("An error occurred.");
   }
 }
 
@@ -1191,7 +1448,7 @@ async function saveAd() {
   const targetValue = document.getElementById("adTargetValue").value.trim();
   const file = document.getElementById("adImageFile").files[0];
 
-  if(!targetValue) return alert("Target value/link required!");
+  if(!targetValue) return alert("Target link required!");
 
   let imageUrl = document.getElementById("adPreview").src;
   if(!imageUrl || imageUrl === window.location.href) imageUrl = "";
@@ -1201,35 +1458,20 @@ async function saveAd() {
     if(uploaded) imageUrl = uploaded;
   }
 
-  const adData = {
-    title,
-    image_url: imageUrl,
-    target_type: targetType,
-    target_value: targetValue
-  };
+  const adData = { title, image_url: imageUrl, target_type: targetType, target_value: targetValue };
 
   try {
     let res;
     if(editIdInput && editIdInput !== "") {
       res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${editIdInput}`, {
         method: 'PATCH',
-        headers: {
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(adData)
       });
     } else {
       res = await fetch(`${SUPABASE_URL}/rest/v1/ads`, {
         method: 'POST',
-        headers: {
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(adData)
       });
     }
@@ -1238,8 +1480,6 @@ async function saveAd() {
       alert("✅ Ad Saved Successfully!");
       resetAdForm();
       loadAllData();
-    } else {
-      alert("Failed to save ad.");
     }
   } catch(e) {
     alert("Error saving ad.");
@@ -1263,10 +1503,7 @@ async function deleteAd(id) {
     method: 'DELETE',
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
-  if(res.ok) {
-    alert("Ad deleted!");
-    loadAllData();
-  }
+  if(res.ok) { alert("Ad deleted!"); loadAllData(); }
 }
 
 function editMovie(id) {
@@ -1281,12 +1518,7 @@ function editMovie(id) {
   
   const preview = document.getElementById("preview");
   const imgUrl = getValidImg(m);
-  if(imgUrl) {
-    preview.src = imgUrl;
-    preview.style.display = "block";
-  } else {
-    preview.style.display = "none";
-  }
+  if(imgUrl) { preview.src = imgUrl; preview.style.display = "block"; } else { preview.style.display = "none"; }
 
   document.getElementById("videoFormTitle").textContent = "✏️ Edit Video Entry";
   document.getElementById("videoSubmitBtn").textContent = "Update Video";
@@ -1319,17 +1551,11 @@ async function saveActor(){
 
   let imageUrl = document.getElementById("actorPreview").src;
   if(!imageUrl || imageUrl === window.location.href) imageUrl = "";
-  if(file){
-    let uploaded = await uploadFileToSupabase(file);
-    if(uploaded) imageUrl = uploaded;
-  }
+  if(file){ let uploaded = await uploadFileToSupabase(file); if(uploaded) imageUrl = uploaded; }
 
   let bannerUrl = document.getElementById("actorBannerPreview").src;
   if(!bannerUrl || bannerUrl === window.location.href) bannerUrl = "";
-  if(bannerFile){
-    let uploadedBanner = await uploadFileToSupabase(bannerFile);
-    if(uploadedBanner) bannerUrl = uploadedBanner;
-  }
+  if(bannerFile){ let uploadedBanner = await uploadFileToSupabase(bannerFile); if(uploadedBanner) bannerUrl = uploadedBanner; }
 
   const actorData = { name, image_url: imageUrl, banner_url: bannerUrl };
 
@@ -1338,23 +1564,13 @@ async function saveActor(){
     if(editIdInput && editIdInput !== "") {
       res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${editIdInput}`, {
         method: 'PATCH',
-        headers: {
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(actorData)
       });
     } else {
       res = await fetch(`${SUPABASE_URL}/rest/v1/performers`, {
         method: 'POST',
-        headers: {
-          'apikey': ANON_KEY,
-          'Authorization': 'Bearer ' + ANON_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
-        },
+        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(actorData)
       });
     }
@@ -1363,12 +1579,9 @@ async function saveActor(){
       alert(editIdInput ? "✅ Actor Updated Successfully!" : "✅ Actor Added Successfully!");
       resetActorForm();
       loadAllData();
-    } else {
-      const errText = await res.text();
-      alert("Failed to save actor: " + errText);
     }
   } catch(e) {
-    alert("An error occurred. Check connection.");
+    alert("Error saving actor.");
   }
 }
 
@@ -1379,20 +1592,10 @@ function editActor(id) {
   document.getElementById("actorName").value = p.name || "";
   
   const preview = document.getElementById("actorPreview");
-  if(p.image_url) {
-    preview.src = p.image_url;
-    preview.style.display = "block";
-  } else {
-    preview.style.display = "none";
-  }
+  if(p.image_url) { preview.src = p.image_url; preview.style.display = "block"; } else { preview.style.display = "none"; }
 
   const bannerPreview = document.getElementById("actorBannerPreview");
-  if(p.banner_url) {
-    bannerPreview.src = p.banner_url;
-    bannerPreview.style.display = "block";
-  } else {
-    bannerPreview.style.display = "none";
-  }
+  if(p.banner_url) { bannerPreview.src = p.banner_url; bannerPreview.style.display = "block"; } else { bannerPreview.style.display = "none"; }
 
   document.getElementById("actorFormTitle").textContent = "✏️ Edit Actor / Performer";
   document.getElementById("actorSubmitBtn").textContent = "Update Actor";
@@ -1439,9 +1642,7 @@ function renderAdmin(){
     div.className = "adminItem";
     div.innerHTML = `
       <img class="adminThumb" src="${item.image_url || ''}" style="border-radius:50%; width:35px; height:35px;" onerror="this.style.display='none'">
-      <div style="flex:1;">
-        <strong>${escapeHTML(item.name)}</strong>
-      </div>
+      <div style="flex:1;"><strong>${escapeHTML(item.name)}</strong></div>
       <button class="addBtn" style="width:auto; padding:4px 8px; background:#f39c12;" onclick="editActor('${item.id}')">Edit</button>
       <button class="addBtn" style="width:auto; padding:4px 8px;" onclick="deleteActor('${item.id}')">Delete</button>
     `;
@@ -1457,7 +1658,7 @@ function renderAdmin(){
       <img class="adminThumb" src="${item.image_url || ''}" onerror="this.style.display='none'">
       <div style="flex:1;">
         <strong>${escapeHTML(item.title)}</strong><br>
-        <small style="color:#fbbf24;">Type: ${item.target_type} -> ${item.target_value}</small>
+        <small style="color:#fbbf24;">Type: ${item.target_type}</small>
       </div>
       <button class="addBtn" style="width:auto; padding:4px 8px;" onclick="deleteAd('${item.id}')">Delete</button>
     `;
@@ -1471,10 +1672,7 @@ async function deleteMovie(id){
     method: 'DELETE',
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
-  if(res.ok) {
-    alert("Video deleted successfully!");
-    loadAllData();
-  }
+  if(res.ok) { alert("Video deleted!"); loadAllData(); }
 }
 
 async function deleteActor(id){
@@ -1483,10 +1681,7 @@ async function deleteActor(id){
     method: 'DELETE',
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
-  if(res.ok) {
-    alert("Performer deleted successfully!");
-    loadAllData();
-  }
+  if(res.ok) { alert("Performer deleted!"); loadAllData(); }
 }
 
 document.getElementById("search").addEventListener("input", function(){
@@ -1494,13 +1689,9 @@ document.getElementById("search").addEventListener("input", function(){
   const sugBox = document.getElementById("suggestions");
   sugBox.innerHTML = "";
   
-  if(!q){
-    sugBox.style.display = "none";
-    return;
-  }
+  if(!q){ sugBox.style.display = "none"; return; }
 
   let resultsCount = 0;
-
   performers.forEach(p => {
     if(p.name.toLowerCase().includes(q)) {
       resultsCount++;
@@ -1516,7 +1707,7 @@ document.getElementById("search").addEventListener("input", function(){
     }
   });
 
-  movies.forEach(movie => {
+  movies.filter(movie => {
     if(movie.title.toLowerCase().includes(q)) {
       resultsCount++;
       const itemDiv = document.createElement("div");
@@ -1531,11 +1722,7 @@ document.getElementById("search").addEventListener("input", function(){
     }
   });
 
-  if(resultsCount > 0){
-    sugBox.style.display = "block";
-  } else {
-    sugBox.style.display = "none";
-  }
+  sugBox.style.display = resultsCount > 0 ? "block" : "none";
 });
 </script>
 </body>
