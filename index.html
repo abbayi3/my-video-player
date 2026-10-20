@@ -15,6 +15,7 @@
   --text-color: #f1f5f9;
   --subtext-color: #94a3b8;
   --accent-color: #e50914;
+  --skeleton-bg: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] {
@@ -26,6 +27,7 @@
   --text-color: #0f172a;
   --subtext-color: #475569;
   --accent-color: #e50914;
+  --skeleton-bg: rgba(0, 0, 0, 0.08);
 }
 
 *{ box-sizing:border-box; margin:0; padding:0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
@@ -36,6 +38,25 @@ body{
   color: var(--text-color); 
   min-height: 100vh;
   transition: all 0.3s ease; 
+}
+
+@keyframes shimmer {
+  0% { opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+.skeleton {
+  background-color: var(--skeleton-bg) !important;
+  animation: shimmer 1.2s ease-in-out infinite;
+  border: 1px solid var(--glass-border) !important;
+}
+
+.skeleton-box {
+  width: 100%;
+  background: var(--skeleton-bg);
+  border-radius: 10px;
+  animation: shimmer 1.2s ease-in-out infinite;
 }
 
 /* Glassmorphism Header */
@@ -169,30 +190,10 @@ header{
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.promo-banner:active, .promo-banner:hover {
-  transform: scale(0.98);
-  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.6);
-}
-
 .promo-banner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.promo-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fbbf24;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 4px 10px;
-  border-radius: 6px;
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(251, 191, 36, 0.4);
-  z-index: 5;
 }
 
 /* Fixed Category Tags Overlay */
@@ -317,14 +318,9 @@ header{
   border-radius: 14px; 
   border: 1px solid var(--glass-border); 
   box-shadow: var(--glass-shadow); 
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.grid-poster:hover {
-  transform: scale(0.98);
-  box-shadow: 0 12px 35px rgba(229, 9, 20, 0.4);
 }
 
-/* Actor Profile Styles - Exact Fit Compact Box & Glassmorphism */
+/* Actor Profile Styles */
 .actor-profile-banner { 
   position: relative; 
   width: 100%; 
@@ -361,7 +357,6 @@ header{
   border: 2px solid var(--accent-color); 
   background: var(--glass-bg); 
   flex-shrink: 0; 
-  box-shadow: 0 4px 15px rgba(0,0,0,0.25); 
 }
 
 .actor-profile-info {
@@ -404,7 +399,6 @@ header{
   cursor: pointer;
   backdrop-filter: blur(4px);
 }
-.skip-btn-pill:active { transform: scale(0.9); }
 
 .back-arrow-btn{ position:absolute; top:12px; left:12px; background:rgba(0,0,0,0.7); color:white; border:0; width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; z-index:20; backdrop-filter: blur(6px); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; }
 .modalContent{ padding:20px 15px; }
@@ -472,8 +466,8 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   <div style="font-size:11px; color:var(--subtext-color); text-align:center; padding-top:20px;">StreamHub Glass Edition</div>
 </div>
 
-<!-- Promotional Banner Ads Container with Fixed Overlay Tags -->
-<div id="promoBannerWrapper" class="promo-banner-container" style="display:none; position:relative;">
+<!-- Promotional Banner Ads Container -->
+<div id="promoBannerWrapper" class="promo-banner-container" style="display:block; position:relative;">
   <div id="fixedCategoriesOverlay" class="fixed-categories-overlay"></div>
 </div>
 
@@ -482,10 +476,8 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   <div id="performersRow" class="performers-row"></div>
 </div>
 
-<!-- Trending Videos Section (One below another) -->
+<!-- Content Containers -->
 <div id="randomVideosContainer"></div>
-
-<!-- Dynamic Category Sections -->
 <div id="dynamicCategoriesContainer"></div>
 
 <footer>© 2026 StreamHub</footer>
@@ -505,11 +497,7 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
     <button class="back-btn" onclick="closeActorProfilePage()">←</button>
     <div class="category-title-head">Actor Profile</div>
   </div>
-  
-  <div class="actor-profile-banner">
-    <img id="actorProfileBannerImg" src="" alt="Banner">
-  </div>
-  
+  <div class="actor-profile-banner"><img id="actorProfileBannerImg" src="" alt="Banner"></div>
   <div class="actor-profile-header">
     <img id="actorProfileAvatar" class="actor-profile-avatar" src="" onerror="this.style.display='none'">
     <div class="actor-profile-info">
@@ -517,7 +505,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="actorProfileCount" class="actor-profile-sub" style="font-size:10px; color:var(--subtext-color);">0 Videos</div>
     </div>
   </div>
-
   <div id="actorProfileGrid" class="grid-container" style="margin-top: 15px;"></div>
 </div>
 
@@ -528,27 +515,22 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
     <div class="modalMediaContainer">
       <img id="modalImage" class="modalImage" src="">
       <iframe id="modalTrailerFrame" class="modalIframe" src="" allowfullscreen allow="autoplay; encrypted-media; fullscreen; picture-in-picture"></iframe>
-      
       <video id="modalVideoPlayer" class="modalVideo" controls playsinline></video>
       <div id="playerCustomButtons" class="player-custom-buttons">
         <button class="skip-btn-pill" onclick="skipVideoTime(-10)">-10s</button>
         <button class="skip-btn-pill" onclick="skipVideoTime(10)">+10s</button>
       </div>
     </div>
-
     <div class="modalContent">
       <h2 id="modalTitle" style="font-size:20px; margin-bottom:12px;"></h2>
-      
       <div id="modalActorContainer" class="modal-actor-info" style="display:none;" onclick="openActorProfileFromModal()">
         <img id="modalActorAvatar" class="modal-actor-avatar" src="" onerror="this.style.display='none'">
         <span id="modalActorName" class="modal-actor-name"></span>
       </div>
-
       <div class="action-btns">
         <a id="watchMovieAnchor" class="btn-action watch-btn" href="javascript:void(0)" onclick="handleWatchClick()">▶ Play Video</a>
         <button class="btn-action" style="background:var(--glass-bg); color:var(--text-color); flex: 0.4; border:1px solid var(--glass-border);" onclick="shareVideo()">🔗 Share</button>
       </div>
-
       <div class="modal-suggestions-title">Recommended Videos</div>
       <div id="modalSuggestionsGrid" class="grid-container" style="padding:0; margin-top:10px;"></div>
     </div>
@@ -562,7 +544,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
     <button class="addBtn" style="background:var(--glass-bg); color:var(--text-color); width:auto; padding:6px 12px; border:1px solid var(--glass-border);" onclick="closeAdmin()">✕ Close</button>
   </div>
   <div class="adminContent">
-    
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secMovie', 'iconMovie')">
         <h3 id="videoFormTitle" style="color:var(--accent-color);">🎬 Add Video Entry</h3>
@@ -571,27 +552,15 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secMovie" class="accordion-body">
         <input type="hidden" id="editMovieId">
         <div class="group"><label>Video Title</label><input id="movieTitle" placeholder="Title"></div>
-        <div class="group">
-          <label>Bunny.net / Direct MP4 / M3U8 Link</label>
-          <textarea id="movieLink" placeholder="Paste Direct Link..."></textarea>
-        </div>
+        <div class="group"><label>Bunny.net / Direct MP4 / M3U8 Link</label><textarea id="movieLink" placeholder="Paste Direct Link..."></textarea></div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
-        <div class="group">
-          <label>Actor Name</label>
-          <input id="movieActor" list="actorSuggestions" placeholder="Actor Name">
-          <datalist id="actorSuggestions"></datalist>
-        </div>
-        <div class="group">
-          <label>Thumbnail Poster</label>
-          <input id="movieImage" type="file" accept="image/*">
-          <img id="preview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
-        </div>
+        <div class="group"><label>Actor Name</label><input id="movieActor" list="actorSuggestions" placeholder="Actor Name"><datalist id="actorSuggestions"></datalist></div>
+        <div class="group"><label>Thumbnail Poster</label><input id="movieImage" type="file" accept="image/*"><img id="preview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;"></div>
         <button id="videoSubmitBtn" class="addBtn" onclick="saveMovie()">Save Video</button>
         <button id="videoCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetVideoForm()">Cancel Edit</button>
       </div>
     </div>
-
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secActor', 'iconActor')">
         <h3 id="actorFormTitle" style="color:var(--accent-color);">👤 Add Actor / Performer</h3>
@@ -600,21 +569,12 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secActor" class="accordion-body">
         <input type="hidden" id="editActorId">
         <div class="group"><label>Actor Name</label><input id="actorName" placeholder="Performer name"></div>
-        <div class="group">
-          <label>Actor Profile Avatar</label>
-          <input id="actorImage" type="file" accept="image/*">
-          <img id="actorPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
-        </div>
-        <div class="group">
-          <label>Actor Banner Thumbnail</label>
-          <input id="actorBannerImage" type="file" accept="image/*">
-          <img id="actorBannerPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
-        </div>
+        <div class="group"><label>Actor Profile Avatar</label><input id="actorImage" type="file" accept="image/*"><img id="actorPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;"></div>
+        <div class="group"><label>Actor Banner Thumbnail</label><input id="actorBannerImage" type="file" accept="image/*"><img id="actorBannerPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;"></div>
         <button id="actorSubmitBtn" class="addBtn" onclick="saveActor()">Save Actor</button>
         <button id="actorCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetActorForm()">Cancel Edit</button>
       </div>
     </div>
-
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secAd', 'iconAd')">
         <h3 id="adFormTitle" style="color:#fbbf24;">📢 Manage Banner Ads</h3>
@@ -623,31 +583,14 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secAd" class="accordion-body">
         <input type="hidden" id="editAdId">
         <div class="group"><label>Ad Title / Description</label><input id="adTitle" placeholder="e.g. Special Offer Ad"></div>
-        <div class="group">
-          <label>Ad Banner Image</label>
-          <input id="adImageFile" type="file" accept="image/*">
-          <img id="adPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;">
-        </div>
-        <div class="group">
-          <label>Link Type</label>
-          <select id="adTargetType" onchange="toggleAdTargetInputs()">
-            <option value="url">External Website / Direct URL</option>
-            <option value="video">Specific Video</option>
-            <option value="category">Category</option>
-            <option value="actor">Actor Profile</option>
-            <option value="tag">Tag (e.g. Recently Added)</option>
-          </select>
-        </div>
-        <div class="group" id="adTargetValueContainer">
-          <label id="adTargetLabel">Target URL</label>
-          <input id="adTargetValue" placeholder="https://example.com or Video ID...">
-        </div>
+        <div class="group"><label>Ad Banner Image</label><input id="adImageFile" type="file" accept="image/*"><img id="adPreview" style="width:100px; height:60px; object-fit:cover; border-radius:6px; margin-top:8px; display:none;"></div>
+        <div class="group"><label>Link Type</label><select id="adTargetType" onchange="toggleAdTargetInputs()"><option value="url">External Website / Direct URL</option><option value="video">Specific Video</option><option value="category">Category</option><option value="actor">Actor Profile</option><option value="tag">Tag (e.g. Recently Added)</option></select></div>
+        <div class="group" id="adTargetValueContainer"><label id="adTargetLabel">Target URL</label><input id="adTargetValue" placeholder="https://example.com or Video ID..."></div>
         <button id="adSubmitBtn" class="addBtn" style="background:#fbbf24; color:#000;" onclick="saveAd()">Save Banner Ad</button>
         <button id="adCancelBtn" class="addBtn" style="background:#525868; display:none;" onclick="resetAdForm()">Cancel Edit</button>
         <div style="margin-top: 15px;" id="adminAdsList"></div>
       </div>
     </div>
-
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secItems', 'iconItems')">
         <h3>📹 Videos List</h3>
@@ -655,7 +598,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       </div>
       <div id="secItems" class="accordion-body"><div id="adminMovies"></div></div>
     </div>
-
     <div class="admin-card-section">
       <div class="accordion-header" onclick="toggleAccordion('secActorsList', 'iconActorsList')">
         <h3>👥 Performers List</h3>
@@ -663,7 +605,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       </div>
       <div id="secActorsList" class="accordion-body"><div id="adminActors"></div></div>
     </div>
-
   </div>
 </div>
 
@@ -678,6 +619,70 @@ let selectedMovie = null;
 let activeTagFilter = '';
 let adAutoSlideInterval = null;
 let currentAdIndex = 0;
+
+function showSkeletonLoading() {
+  const promoWrapper = document.getElementById("promoBannerWrapper");
+  const randomContainer = document.getElementById("randomVideosContainer");
+  const categoriesContainer = document.getElementById("dynamicCategoriesContainer");
+  const performersRow = document.getElementById("performersRow");
+
+  promoWrapper.style.display = "block";
+  promoWrapper.innerHTML = `
+    <div class="ads-slider-wrapper">
+      <div class="promo-banner skeleton" style="height: 290px;"></div>
+    </div>
+    <div class="fixed-categories-overlay">
+      <div class="badge skeleton" style="width: 55px; height: 26px;"></div>
+      <div class="badge skeleton" style="width: 65px; height: 26px;"></div>
+      <div class="badge skeleton" style="width: 60px; height: 26px;"></div>
+    </div>
+  `;
+
+  performersRow.innerHTML = `
+    <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
+    <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
+    <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
+  `;
+
+  randomContainer.innerHTML = `
+    <section class="section">
+      <div class="section-header"><div class="skeleton-box skeleton" style="width:130px; height:18px; border-radius:4px;"></div></div>
+      <div class="vertical-video-list">
+        <div class="vertical-video-item"><div class="vertical-poster-box skeleton"></div><div class="skeleton-box skeleton" style="width:80%; height:12px; margin-top:6px; border-radius:4px;"></div></div>
+      </div>
+    </section>
+  `;
+
+  categoriesContainer.innerHTML = `
+    <section class="section">
+      <div class="section-header"><div class="skeleton-box skeleton" style="width:100px; height:18px; border-radius:4px;"></div></div>
+      <div class="row">
+        <div class="movie"><div class="poster-box skeleton"></div><div class="skeleton-box skeleton" style="height:10px; margin-top:6px; border-radius:4px;"></div></div>
+        <div class="movie"><div class="poster-box skeleton"></div><div class="skeleton-box skeleton" style="height:10px; margin-top:6px; border-radius:4px;"></div></div>
+      </div>
+    </section>
+  `;
+}
+
+function showNetworkErrorState() {
+  const promoWrapper = document.getElementById("promoBannerWrapper");
+  const randomContainer = document.getElementById("randomVideosContainer");
+  const categoriesContainer = document.getElementById("dynamicCategoriesContainer");
+  const performersRow = document.getElementById("performersRow");
+
+  promoWrapper.style.display = "none";
+  performersRow.innerHTML = "";
+  categoriesContainer.innerHTML = "";
+  
+  randomContainer.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; text-align:center;">
+      <div style="font-size:40px; margin-bottom:12px;">📡</div>
+      <h3 style="font-size:16px; font-weight:bold; margin-bottom:6px; color:var(--text-color);">No Internet Connection</h3>
+      <p style="font-size:12px; color:var(--subtext-color); margin-bottom:16px;">Please check your network and try again.</p>
+      <button onclick="loadAllData()" style="padding:10px 20px; background:var(--accent-color); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:13px;">Retry</button>
+    </div>
+  `;
+}
 
 function toggleTheme() {
   const body = document.body;
@@ -698,6 +703,9 @@ function getValidImg(movie) {
 }
 
 async function loadAllData() {
+  showSkeletonLogging = true;
+  showSkeletonLoading();
+  
   try {
     const [resVideos, resPerformers, resAds] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/videos?select=*&order=created_at.desc`, {
@@ -711,6 +719,10 @@ async function loadAllData() {
       }).catch(() => ({ json: () => [] }))
     ]);
 
+    if (!resVideos.ok || !resPerformers.ok) {
+      throw new Error("Network response was not ok");
+    }
+
     movies = await resVideos.json();
     performers = await resPerformers.json();
     try { ads = await resAds.json(); } catch(e) { ads = []; }
@@ -719,17 +731,18 @@ async function loadAllData() {
     if(!Array.isArray(performers)) performers = [];
     if(!Array.isArray(ads)) ads = [];
 
-  } catch(err) {
-    console.error("Error loading data:", err);
-  }
+    renderFixedOverlayTags();
+    renderAdsBanner();
+    startAutoSlideAds();
+    renderPerformers();
+    renderMovies();
+    renderAdmin();
+    updateActorSuggestions();
 
-  renderFixedOverlayTags();
-  renderAdsBanner();
-  startAutoSlideAds();
-  renderPerformers();
-  renderMovies();
-  renderAdmin();
-  updateActorSuggestions();
+  } catch(err) {
+    console.error("Connection error:", err);
+    showNetworkErrorState(); // Internet lekapothe clean error message + Retry button chupistundi
+  }
 }
 
 loadAllData();
@@ -970,7 +983,6 @@ function renderAdsBanner() {
     sliderHtml += `
       <div class="promo-banner" onclick="handleAdClick('${escapeHTML(ad.target_type)}', '${escapeHTML(ad.target_value)}')">
         <img src="${escapeHTML(ad.image_url)}" onerror="this.parentElement.style.display='none'">
-        <div class="promo-badge">AD</div>
       </div>
     `;
   });
