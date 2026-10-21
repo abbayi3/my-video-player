@@ -95,7 +95,7 @@ header{
 
 .theme-toggle-btn:active, .menuBtn:active { transform: scale(0.92); }
 
-.search-container{ position:relative; width:40%; max-width:220px; }
+.search-container{ position:relative; width:45%; max-width:260px; }
 
 .search{ 
   width:100%; 
@@ -112,23 +112,29 @@ header{
 .search-icon-inside { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; }
 
 .suggestions-box { 
-  position:absolute; 
-  top:48px; 
-  left:0; 
-  width:100%; 
-  background:var(--glass-header); 
-  border:1px solid var(--glass-border); 
-  border-radius:14px; 
-  max-height:250px; 
-  overflow-y:auto; 
-  z-index:1000; 
-  display:none; 
-  backdrop-filter: blur(20px);
-  box-shadow: var(--glass-shadow); 
+  position: absolute; 
+  top: 45px; 
+  left: -110px; 
+  width: calc(100% + 195px); 
+  background: var(--glass-header); 
+  border: 1px solid var(--glass-border); 
+  border-radius: 14px; 
+  max-height: 220px; 
+  overflow-y: auto; 
+  z-index: 1000; 
+  display: none; 
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5); 
+  scrollbar-width: thin;
 }
 
-.suggestion-item { padding:10px 12px; border-bottom:1px solid var(--glass-border); cursor:pointer; font-size:12px; color:var(--text-color); display:flex; align-items:center; gap:8px; }
-.suggestion-item:hover { background:var(--accent-color); color:white; font-weight:bold; }
+.suggestions-box::-webkit-scrollbar { width: 4px; }
+.suggestions-box::-webkit-scrollbar-thumb { background: var(--glass-border); border-radius: 4px; }
+
+.suggestion-item { padding: 10px 14px; border-bottom: 1px solid var(--glass-border); cursor: pointer; font-size: 12px; color: var(--text-color); display: flex; align-items: center; gap: 8px; }
+.suggestion-item:last-child { border-bottom: none; }
+.suggestion-item:hover { background: var(--accent-color); color: white; font-weight: bold; }
 
 .sidebar-overlay { 
   position: fixed; 
@@ -396,6 +402,19 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
 
 <body data-theme="dark">
 
+<!-- AGE VERIFICATION MODAL -->
+<div id="ageModal" style="position:fixed; inset:0; background:rgba(7,10,18,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index:99999; display:none; align-items:center; justify-content:center; padding:20px;">
+  <div style="background:var(--glass-header); border:1px solid var(--glass-border); border-radius:24px; max-width:450px; width:100%; padding:30px 24px; box-shadow:0 20px 50px rgba(0,0,0,0.7); text-align:center;">
+    <h2 style="font-size:20px; font-weight:bold; margin-bottom:15px; color:var(--text-color);">StreamHub is <span style="color:var(--accent-color);">adults only</span> website!</h2>
+    <p style="font-size:12px; color:var(--subtext-color); line-height:1.6; margin-bottom:20px; text-align:left;">
+      The content available on StreamHub may contain mature materials. This site is strictly limited to those over 18 or of legal age in your jurisdiction, whichever is greater. Please ensure minors do not have access to this site.
+    </p>
+    <button onclick="verifyAge()" style="width:100%; padding:14px; background:var(--accent-color); color:white; border:0; border-radius:14px; font-weight:bold; font-size:14px; cursor:pointer; box-shadow:0 4px 15px rgba(229,9,20,0.4); transition:transform 0.15s ease;">
+      I'm 18 or older — enter StreamHub
+    </button>
+  </div>
+</div>
+
 <header>
   <div class="logo" onclick="showAllHomeMovies()">stream<span>hub</span></div>
   <div class="search-container">
@@ -413,15 +432,14 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
 <div id="sidebar" class="sidebar">
   <div>
     <div class="sidebar-header">
-      <span style="font-weight:900; font-size:18px;">stream<span style="color:var(--accent-color);">hub</span></span>
+      <span style="font-weight:900; font-size:18px;" onclick="handleSecretTap()">stream<span style="color:var(--accent-color);">hub</span></span>
       <button style="background:none; border:none; color:var(--text-color); font-size:18px; cursor:pointer;" onclick="toggleSidebar()">✕</button>
     </div>
     <div class="sidebar-menu-list">
       <button onclick="toggleSidebar(); showAllHomeMovies();">🏠 Home</button>
-      <button onclick="toggleSidebar(); openAdminSecretly();">⚙️ Admin Panel</button>
     </div>
   </div>
-  <div style="font-size:11px; color:var(--subtext-color); text-align:center; padding-top:20px;">StreamHub Glass Edition</div>
+  <div style="font-size:10px; color:var(--subtext-color); text-align:center; padding-top:20px; cursor:pointer;" onclick="openAgeModal()">⚠️ 18+ Age Restricted</div>
 </div>
 
 <div id="promoBannerWrapper" class="promo-banner-container" style="display:block; position:relative;">
@@ -582,6 +600,32 @@ let adAutoSlideInterval = null;
 let currentAdIndex = 0;
 let trendingStartIndex = 0;
 const ITEMS_PER_PAGE = 10;
+let secretTapCount = 0;
+
+function verifyAge() {
+  const modal = document.getElementById('ageModal');
+  modal.style.opacity = '0';
+  modal.style.transition = 'opacity 0.3s ease';
+  setTimeout(() => {
+    modal.style.display = 'none';
+  }, 300);
+}
+
+function openAgeModal() {
+  toggleSidebar();
+  const modal = document.getElementById('ageModal');
+  modal.style.display = 'flex';
+  modal.style.opacity = '1';
+}
+
+function handleSecretTap() {
+  secretTapCount++;
+  if (secretTapCount >= 5) {
+    secretTapCount = 0;
+    toggleSidebar();
+    openAdminSecretly();
+  }
+}
 
 function showSkeletonLoading() {
   const promoWrapper = document.getElementById("promoBannerWrapper");
