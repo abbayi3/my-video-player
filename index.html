@@ -65,7 +65,7 @@ header{
   display:flex; 
   align-items:center; 
   justify-content:space-between; 
-  padding:0 14px; 
+  padding:0 12px; 
   background: var(--glass-header); 
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -74,20 +74,21 @@ header{
   top:0; 
   z-index:50; 
   box-shadow: var(--glass-shadow);
+  gap: 8px;
 }
 
-.logo{ font-size:22px; font-weight:900; color:var(--text-color); letter-spacing:-1px; cursor:pointer; }
+.logo{ font-size:18px; font-weight:900; color:var(--text-color); letter-spacing:-1px; cursor:pointer; flex-shrink: 0; }
 .logo span{ color:var(--accent-color); }
 
-.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
 .theme-toggle-btn, .menuBtn { 
   background: var(--glass-bg); 
   border: 1px solid var(--glass-border); 
   color: var(--text-color); 
-  padding: 8px 12px; 
-  border-radius: 12px; 
-  font-size: 14px; 
+  padding: 6px 10px; 
+  border-radius: 10px; 
+  font-size: 13px; 
   cursor: pointer; 
   backdrop-filter: blur(8px);
   transition: transform 0.15s ease, background 0.15s ease;
@@ -95,27 +96,27 @@ header{
 
 .theme-toggle-btn:active, .menuBtn:active { transform: scale(0.92); }
 
-.search-container{ position:relative; width:45%; max-width:260px; }
+.search-container{ position:relative; flex: 1; max-width: 180px; }
 
 .search{ 
   width:100%; 
-  padding:8px 12px 8px 32px; 
-  border-radius:20px; 
+  padding:7px 10px 7px 28px; 
+  border-radius:18px; 
   border:1px solid var(--glass-border); 
   background:var(--glass-bg); 
   color:var(--text-color); 
   outline:none; 
-  font-size:12px; 
+  font-size:11px; 
   backdrop-filter: blur(10px);
 }
 
-.search-icon-inside { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; }
+.search-icon-inside { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 11px; }
 
 .suggestions-box { 
   position: absolute; 
-  top: 45px; 
-  left: -110px; 
-  width: calc(100% + 195px); 
+  top: 42px; 
+  left: -90px; 
+  width: calc(100% + 140px); 
   background: var(--glass-header); 
   border: 1px solid var(--glass-border); 
   border-radius: 14px; 
@@ -1532,13 +1533,41 @@ async function saveAd() {
     }
 
     if(res.ok) {
-      alert("✅ Ad Saved Successfully!");
+      alert(editIdInput ? "✅ Ad Updated Successfully!" : "✅ Ad Saved Successfully!");
       resetAdForm();
       loadAllData();
+    } else {
+      alert("Failed to save ad. Please check database permissions.");
     }
   } catch(e) {
     alert("Error saving ad.");
   }
+}
+
+function editAd(id) {
+  const item = ads.find(a => a.id == id);
+  if(!item) return;
+  document.getElementById("editAdId").value = item.id;
+  document.getElementById("adTitle").value = item.title || "";
+  document.getElementById("adTargetType").value = item.target_type || "url";
+  toggleAdTargetInputs();
+  document.getElementById("adTargetValue").value = item.target_value || "";
+
+  const preview = document.getElementById("adPreview");
+  if(item.image_url) {
+    preview.src = item.image_url;
+    preview.style.display = "block";
+  } else {
+    preview.style.display = "none";
+  }
+
+  document.getElementById("adFormTitle").textContent = "✏️ Edit Banner Ad";
+  document.getElementById("adSubmitBtn").textContent = "Update Banner Ad";
+  document.getElementById("adCancelBtn").style.display = "block";
+
+  document.getElementById("secAd").style.display = "block";
+  document.getElementById("iconAd").textContent = "▲";
+  document.getElementById("secAd").scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function resetAdForm() {
@@ -1554,11 +1583,20 @@ function resetAdForm() {
 
 async function deleteAd(id) {
   if(!confirm("Delete ad?")) return;
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${id}`, {
-    method: 'DELETE',
-    headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
-  });
-  if(res.ok) { alert("Ad deleted!"); loadAllData(); }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
+    });
+    if(res.ok) { 
+      alert("✅ Ad deleted!"); 
+      loadAllData(); 
+    } else {
+      alert("⚠️ Delete failed! Make sure RLS is disabled in Supabase.");
+    }
+  } catch(e) {
+    alert("Error deleting ad.");
+  }
 }
 
 function editMovie(id) {
@@ -1715,7 +1753,8 @@ function renderAdmin(){
         <strong>${escapeHTML(item.title)}</strong><br>
         <small style="color:#fbbf24;">Type: ${item.target_type}</small>
       </div>
-      <button class="addBtn" style="width:auto; padding:4px 8px;" onclick="deleteAd('${item.id}')">Delete</button>
+      <button class="addBtn" style="width:auto; padding:4px 8px; background:#f39c12;" onclick="editAd('${item.id}')">Edit</button>
+      <button class="addBtn" style="width:auto; padding:4px 8px; background:#e50914;" onclick="deleteAd('${item.id}')">Delete</button>
     `;
     adList.appendChild(div);
   });
