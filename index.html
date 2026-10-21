@@ -382,7 +382,6 @@ header{
 .watch-btn{ background:var(--accent-color); color:#fff; }
 .modal-suggestions-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; color: var(--text-color); }
 
-/* Recommended grid specific fix */
 .recommend-grid {
   display: grid !important;
   grid-template-columns: repeat(2, 1fr) !important;
@@ -414,7 +413,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
 
 <body data-theme="dark">
 
-<!-- AGE VERIFICATION MODAL -->
 <div id="ageModal" style="position:fixed; inset:0; background:rgba(7,10,18,0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index:99999; display:none; align-items:center; justify-content:center; padding:20px;">
   <div style="background:var(--glass-header); border:1px solid var(--glass-border); border-radius:24px; max-width:450px; width:100%; padding:30px 24px; box-shadow:0 20px 50px rgba(0,0,0,0.7); text-align:center;">
     <h2 style="font-size:20px; font-weight:bold; margin-bottom:15px; color:var(--text-color);">StreamHub is <span style="color:var(--accent-color);">adults only</span> website!</h2>
@@ -1483,7 +1481,7 @@ async function saveMovie(){
   try {
     let res;
     if(editIdInput && editIdInput !== "") {
-      res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${editIdInput}`, {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${encodeURIComponent(editIdInput)}`, {
         method: 'PATCH',
         headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(movieData)
@@ -1508,6 +1506,7 @@ async function saveMovie(){
   }
 }
 
+// FIXED FULL SAVE AD FUNCTION (RESOLVES TYPE & QUERY MISMATCH)
 async function saveAd() {
   const editIdInput = document.getElementById("editAdId").value;
   const title = document.getElementById("adTitle").value.trim() || "Sponsored Ad";
@@ -1529,16 +1528,26 @@ async function saveAd() {
 
   try {
     let res;
-    if(editIdInput && editIdInput !== "") {
-      res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${editIdInput}`, {
+    if(editIdInput && editIdInput !== "" && editIdInput !== "undefined") {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${encodeURIComponent(editIdInput)}`, {
         method: 'PATCH',
-        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        headers: { 
+          'apikey': ANON_KEY, 
+          'Authorization': 'Bearer ' + ANON_KEY, 
+          'Content-Type': 'application/json', 
+          'Prefer': 'return=minimal' 
+        },
         body: JSON.stringify(adData)
       });
     } else {
       res = await fetch(`${SUPABASE_URL}/rest/v1/ads`, {
         method: 'POST',
-        headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        headers: { 
+          'apikey': ANON_KEY, 
+          'Authorization': 'Bearer ' + ANON_KEY, 
+          'Content-Type': 'application/json', 
+          'Prefer': 'return=minimal' 
+        },
         body: JSON.stringify(adData)
       });
     }
@@ -1548,7 +1557,8 @@ async function saveAd() {
       resetAdForm();
       loadAllData();
     } else {
-      alert("Failed to save ad. Please check database permissions.");
+      const errRes = await res.json().catch(() => ({}));
+      alert("Failed to save ad: " + (errRes.message || res.statusText || "Database check required"));
     }
   } catch(e) {
     alert("Error saving ad.");
@@ -1556,7 +1566,7 @@ async function saveAd() {
 }
 
 function editAd(id) {
-  const item = ads.find(a => a.id == id);
+  const item = ads.find(a => String(a.id) === String(id));
   if(!item) return;
   document.getElementById("editAdId").value = item.id;
   document.getElementById("adTitle").value = item.title || "";
@@ -1592,18 +1602,24 @@ function resetAdForm() {
   document.getElementById("adCancelBtn").style.display = "none";
 }
 
+// FIXED FULL DELETE AD FUNCTION
 async function deleteAd(id) {
   if(!confirm("Delete ad?")) return;
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${id}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/ads?id=eq.${encodeURIComponent(id)}`, {
       method: 'DELETE',
-      headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
+      headers: { 
+        'apikey': ANON_KEY, 
+        'Authorization': 'Bearer ' + ANON_KEY, 
+        'Prefer': 'return=minimal' 
+      }
     });
     if(res.ok) { 
       alert("✅ Ad deleted!"); 
       loadAllData(); 
     } else {
-      alert("⚠️ Delete failed! Make sure RLS is disabled in Supabase.");
+      const errRes = await res.json().catch(() => ({}));
+      alert("⚠️ Delete failed: " + (errRes.message || "Make sure RLS is disabled or allowed in Supabase."));
     }
   } catch(e) {
     alert("Error deleting ad.");
@@ -1611,7 +1627,7 @@ async function deleteAd(id) {
 }
 
 function editMovie(id) {
-  const m = movies.find(item => item.id == id);
+  const m = movies.find(item => String(item.id) === String(id));
   if(!m) return;
   document.getElementById("editMovieId").value = m.id;
   document.getElementById("movieTitle").value = m.title || "";
@@ -1666,7 +1682,7 @@ async function saveActor(){
   try {
     let res;
     if(editIdInput && editIdInput !== "") {
-      res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${editIdInput}`, {
+      res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${encodeURIComponent(editIdInput)}`, {
         method: 'PATCH',
         headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(actorData)
@@ -1690,7 +1706,7 @@ async function saveActor(){
 }
 
 function editActor(id) {
-  const p = performers.find(item => item.id == id);
+  const p = performers.find(item => String(item.id) === String(id));
   if(!p) return;
   document.getElementById("editActorId").value = p.id;
   document.getElementById("actorName").value = p.name || "";
@@ -1773,7 +1789,7 @@ function renderAdmin(){
 
 async function deleteMovie(id){
   if(!confirm("Delete video?")) return;
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${id}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/videos?id=eq.${encodeURIComponent(id)}`, {
     method: 'DELETE',
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
@@ -1782,7 +1798,7 @@ async function deleteMovie(id){
 
 async function deleteActor(id){
   if(!confirm("Delete performer?")) return;
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${id}`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/performers?id=eq.${encodeURIComponent(id)}`, {
     method: 'DELETE',
     headers: { 'apikey': ANON_KEY, 'Authorization': 'Bearer ' + ANON_KEY, 'Prefer': 'return=minimal' }
   });
