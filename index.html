@@ -9,7 +9,7 @@
 :root {
   --bg-gradient: linear-gradient(135deg, #0f172a 0%, #070a12 100%);
   --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-header: rgba(15, 23, 42, 0.85);
+  --glass-header: rgba(15, 23, 42, 0.92);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   --text-color: #f1f5f9;
@@ -21,7 +21,7 @@
 [data-theme="light"] {
   --bg-gradient: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
   --glass-bg: rgba(255, 255, 255, 0.35);
-  --glass-header: rgba(255, 255, 255, 0.65);
+  --glass-header: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(255, 255, 255, 0.5);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   --text-color: #0f172a;
@@ -38,17 +38,18 @@ body{
   color: var(--text-color); 
   min-height: 100vh;
   transition: all 0.3s ease; 
+  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes shimmer {
-  0% { opacity: 0.5; }
-  50% { opacity: 1; }
-  100% { opacity: 0.5; }
+  0% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+  100% { opacity: 0.4; }
 }
 
 .skeleton {
   background-color: var(--skeleton-bg) !important;
-  animation: shimmer 1.2s ease-in-out infinite;
+  animation: shimmer 0.9s ease-in-out infinite;
   border: 1px solid var(--glass-border) !important;
 }
 
@@ -56,10 +57,9 @@ body{
   width: 100%;
   background: var(--skeleton-bg);
   border-radius: 10px;
-  animation: shimmer 1.2s ease-in-out infinite;
+  animation: shimmer 0.9s ease-in-out infinite;
 }
 
-/* Glassmorphism Header */
 header{ 
   height:65px; 
   display:flex; 
@@ -90,7 +90,7 @@ header{
   font-size: 14px; 
   cursor: pointer; 
   backdrop-filter: blur(8px);
-  transition: transform 0.2s ease, background 0.2s ease;
+  transition: transform 0.15s ease, background 0.15s ease;
 }
 
 .theme-toggle-btn:active, .menuBtn:active { transform: scale(0.92); }
@@ -130,34 +130,43 @@ header{
 .suggestion-item { padding:10px 12px; border-bottom:1px solid var(--glass-border); cursor:pointer; font-size:12px; color:var(--text-color); display:flex; align-items:center; gap:8px; }
 .suggestion-item:hover { background:var(--accent-color); color:white; font-weight:bold; }
 
-/* Sidebar */
-.sidebar{ 
-  position:fixed; 
-  top:0; 
-  left:-290px; 
-  width:270px; 
-  height:100%; 
-  background:var(--glass-header); 
+.sidebar-overlay { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0, 0, 0, 0.6); 
+  backdrop-filter: blur(6px); 
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 998; 
+  display: none; 
+}
+.sidebar-overlay.active { display: block; }
+
+.sidebar { 
+  position: fixed; 
+  top: 0; 
+  left: -280px; 
+  width: 260px; 
+  height: 100%; 
+  background: var(--glass-header); 
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border-right:1px solid var(--glass-border); 
-  z-index:300; 
-  transition: left 0.3s ease; 
-  padding:20px; 
-  display:flex; 
-  flex-direction:column; 
-  justify-content:space-between; 
+  border-right: 1px solid var(--glass-border); 
+  z-index: 999; 
+  transition: left 0.3s cubic-bezier(0.1, 0.9, 0.2, 1); 
+  padding: 20px; 
+  display: flex; 
+  flex-direction: column; 
+  justify-content: space-between; 
+  box-shadow: 5px 0 25px rgba(0,0,0,0.5);
 }
-.sidebar.active{ left:0; }
-.sidebar-overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index:299; display:none; }
+.sidebar.active { left: 0; }
 
-.sidebar-header{ display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--glass-border); padding-bottom:15px; margin-bottom:15px; }
-.sidebar-menu-list button{ width:100%; text-align:left; background:none; border:none; color:var(--subtext-color); padding:12px 10px; border-radius:10px; font-size:14px; cursor:pointer; display:flex; align-items:center; gap:12px; transition:0.3s ease; }
-.sidebar-menu-list button:hover{ background:var(--accent-color); color:white; font-weight:bold; }
+.sidebar-header { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--glass-border); padding-bottom:15px; margin-bottom:15px; }
+.sidebar-menu-list button{ width:100%; text-align:left; background:none; border:none; color:var(--text-color); padding:12px 10px; border-radius:10px; font-size:14px; font-weight: 600; cursor:pointer; display:flex; align-items:center; gap:12px; transition:0.2s ease; }
+.sidebar-menu-list button:hover{ background:var(--accent-color); color:white; }
 
-/* Promotional Banner Ads Horizontal Slider Container */
 .promo-banner-container {
-  padding: 12px 0 0 0;
+  padding: 12px 14px 0 14px;
   width: 100%;
   position: relative;
 }
@@ -167,9 +176,10 @@ header{
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 0 14px 10px 14px;
+  padding: 0;
   scrollbar-width: none;
   scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 .ads-slider-wrapper::-webkit-scrollbar { display: none; }
 
@@ -177,7 +187,7 @@ header{
   min-width: calc(100vw - 28px);
   width: calc(100vw - 28px);
   max-width: 700px;
-  height: 290px; 
+  height: 250px; 
   border-radius: 18px;
   overflow: hidden;
   position: relative;
@@ -187,7 +197,6 @@ header{
   background: var(--glass-bg);
   scroll-snap-align: start;
   flex-shrink: 0;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
 .promo-banner img {
@@ -196,18 +205,18 @@ header{
   object-fit: cover;
 }
 
-/* Fixed Category Tags Overlay */
 .fixed-categories-overlay {
   position: absolute;
-  top: 24px;
-  left: 26px;
-  right: 90px;
+  top: 22px;
+  left: 16px;
+  right: 16px;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
   z-index: 25;
   pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .fixed-categories-overlay::-webkit-scrollbar { display: none; }
 
@@ -217,25 +226,24 @@ header{
   color: var(--text-color); 
   font-size: 11px; 
   font-weight: 600; 
-  padding: 5px 12px; 
+  padding: 6px 14px; 
   border-radius: 20px; 
   white-space: nowrap; 
   cursor: pointer; 
-  transition: all 0.2s ease; 
+  transition: background 0.15s ease, border-color 0.15s ease; 
   backdrop-filter: blur(12px); 
-  -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--glass-shadow); 
+  flex-shrink: 0;
 }
 .badge.active, .badge:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4); }
 
-/* Performers Row */
 .performers-section {
   position: relative;
   z-index: 20;
   margin-top: -38px;
   padding: 0 14px;
 }
-.performers-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+.performers-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .performers-row::-webkit-scrollbar { display: none; }
 .performer-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
 
@@ -249,11 +257,10 @@ header{
 .section-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
 .title{ font-size:16px; text-transform:capitalize; font-weight:bold; }
 
-.row{ display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding-bottom: 5px; }
+.row{ display:flex; gap:12px; overflow-x:auto; scrollbar-width:none; padding-bottom: 5px; -webkit-overflow-scrolling: touch; }
 
 .movie{ width:140px; min-width:140px; cursor:pointer; background: transparent; border: none; flex-shrink: 0; }
 
-/* Category Overlay Design on Card */
 .category-card-overlay {
   position: absolute;
   inset: 0;
@@ -262,7 +269,7 @@ header{
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(2px);
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .category-card-overlay:hover {
@@ -301,39 +308,42 @@ header{
 .movieName{ padding: 5px 2px 2px 2px; font-size:11px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:600; color: var(--text-color); }
 .movieMeta{ padding: 0 2px 5px 2px; color:var(--subtext-color); font-size:9px; display: flex; justify-content: space-between; }
 
-/* Vertical Video Item */
 .vertical-video-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 .vertical-video-item { width: 100%; cursor: pointer; display: flex; flex-direction: column; }
 .vertical-poster-box { width: 100%; height: 180px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 14px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); box-shadow: var(--glass-shadow); }
 .vertical-poster-box img { width: 100%; height: 100%; object-fit: cover; }
 
-/* Pagination Next Button */
 .pagination-container {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 12px;
   margin-top: 15px;
 }
-.next-page-btn {
+.page-btn {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   color: var(--text-color);
-  padding: 10px 24px;
+  padding: 10px 20px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: bold;
   cursor: pointer;
   backdrop-filter: blur(10px);
   box-shadow: var(--glass-shadow);
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, border-color 0.15s ease, opacity 0.2s ease;
 }
-.next-page-btn:hover {
+.page-btn:hover:not(:disabled) {
   background: var(--accent-color);
   border-color: var(--accent-color);
   color: white;
 }
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
-/* Fixed Pages */
-.category-page, .actor-profile-page{ position:fixed; inset:0; display:none; background: var(--bg-gradient); z-index:90; overflow-y:auto; }
+.category-page, .actor-profile-page{ position:fixed; inset:0; display:none; background: var(--bg-gradient); z-index:90; overflow-y:auto; -webkit-overflow-scrolling: touch; }
 .category-page.active, .actor-profile-page.active { display: block; }
 .category-header{ height:65px; display:flex; align-items:center; gap:15px; padding:0 15px; background:var(--glass-header); border-bottom:1px solid var(--glass-border); position:sticky; top:0; z-index:10; backdrop-filter: blur(16px); }
 .back-btn{ background:none; border:none; color:var(--text-color); font-size:22px; cursor:pointer; }
@@ -341,15 +351,13 @@ header{
 .grid-movie{ cursor:pointer; width:100%; display: flex; flex-direction: column; }
 .grid-poster { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
 
-/* Actor Profile Styles */
 .actor-profile-banner { position: relative; width: 100%; height: 220px; background: var(--glass-bg); overflow: hidden; box-shadow: var(--glass-shadow); }
 .actor-profile-banner img { width: 100%; height: 100%; object-fit: cover; }
 .actor-profile-header { display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px; position: relative; margin-top: -32px; margin-left: 14px; width: fit-content; min-width: 220px; background: var(--glass-header); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 16px; border: 1px solid var(--glass-border); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25), var(--glass-shadow); }
 .actor-profile-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent-color); background: var(--glass-bg); flex-shrink: 0; }
 .actor-profile-info { display: flex; flex-direction: column; justify-content: center; white-space: nowrap; }
 
-/* Full-Screen Video Modal */
-.modal{ position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:500; overflow-y:auto; }
+.modal{ position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:500; overflow-y:auto; -webkit-overflow-scrolling: touch; }
 .modal.active { display: block; }
 .modalBox{ width:100%; max-width:700px; margin:0 auto; min-height:100vh; background:transparent; position:relative; padding-bottom:30px; }
 .modalMediaContainer{ width:100%; aspect-ratio: 16/9; background:#000; position:relative; }
@@ -366,10 +374,9 @@ header{
 .watch-btn{ background:var(--accent-color); color:#fff; }
 .modal-suggestions-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; color: var(--text-color); }
 
-/* Admin Panel */
-.admin{ position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:400; overflow-y:auto; flex-direction: column; }
+.admin{ position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:1001; overflow-y:auto; flex-direction: column; -webkit-overflow-scrolling: touch; }
 .admin.active { display: flex; }
-.adminHeader{ height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 15px; border-bottom:1px solid var(--glass-border); position:sticky; top:0; background:var(--glass-header); backdrop-filter: blur(16px); }
+.adminHeader{ height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 15px; border-bottom:1px solid var(--glass-border); position:sticky; top:0; background:var(--glass-header); backdrop-filter: blur(16px); z-index: 10; }
 .adminContent{ max-width:600px; margin:auto; padding:20px; width:100%; }
 .group{ margin-bottom:15px; }
 .group label{ display:block; color:var(--subtext-color); font-size:12px; margin-bottom:6px; }
@@ -410,27 +417,23 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <button style="background:none; border:none; color:var(--text-color); font-size:18px; cursor:pointer;" onclick="toggleSidebar()">✕</button>
     </div>
     <div class="sidebar-menu-list">
-      <button onclick="showAllHomeMovies()">🏠 Home</button>
-      <button onclick="openAdminSecretly()">⚙️ Admin Panel</button>
+      <button onclick="toggleSidebar(); showAllHomeMovies();">🏠 Home</button>
+      <button onclick="toggleSidebar(); openAdminSecretly();">⚙️ Admin Panel</button>
     </div>
   </div>
   <div style="font-size:11px; color:var(--subtext-color); text-align:center; padding-top:20px;">StreamHub Glass Edition</div>
 </div>
 
-<!-- Promotional Banner Ads Container -->
 <div id="promoBannerWrapper" class="promo-banner-container" style="display:block; position:relative;">
   <div id="fixedCategoriesOverlay" class="fixed-categories-overlay"></div>
 </div>
 
-<!-- Performers Row -->
 <div class="performers-section">
   <div id="performersRow" class="performers-row"></div>
 </div>
 
-<!-- Content Containers -->
 <div id="randomVideosContainer"></div>
 
-<!-- Categories Section Container (Horizontal Scrolling Row for Categories) -->
 <div class="section" id="categoriesMainSection" style="display:none;">
   <div class="section-header">
     <div class="title">Categories</div>
@@ -440,7 +443,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
 
 <footer>© 2026 StreamHub</footer>
 
-<!-- Category Page View -->
 <div id="categoryPage" class="category-page">
   <div class="category-header">
     <button class="back-btn" onclick="closeCategoryPage()">←</button>
@@ -449,7 +451,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   <div id="categoryGrid" class="grid-container"></div>
 </div>
 
-<!-- Actor Profile Page View -->
 <div id="actorProfilePage" class="actor-profile-page">
   <div class="category-header">
     <button class="back-btn" onclick="closeActorProfilePage()">←</button>
@@ -466,7 +467,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   <div id="actorProfileGrid" class="grid-container" style="margin-top: 15px;"></div>
 </div>
 
-<!-- Video Modal -->
 <div id="movieModal" class="modal">
   <div class="modalBox">
     <button class="back-arrow-btn" onclick="closeMovie()">←</button>
@@ -495,7 +495,6 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
   </div>
 </div>
 
-<!-- Admin Panel -->
 <div id="adminPanel" class="admin">
   <div class="adminHeader">
     <h2>⚙️ Admin Panel</h2>
@@ -567,8 +566,12 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
 </div>
 
 <script>
+// ==========================================
+// 🔑 SUPABASE HARDCODED CONFIGURATION
+// ==========================================
 const SUPABASE_URL = 'https://qhzfeayfufeovkttvycg.supabase.co';
-const ANON_KEY = 'sb_publishable_RnQLYXFjBaNMh5yThZ-zeg_lPIbPMjw';
+const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoemZlYXlmdWZlb3ZrdHR2eWNnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIzNzEzOTcsImV4cCI6MjEwNzk0NzM5N30.ELSETtJot-JcNdd4TcKr4m1t17HDVsrzFfWNJBWyApc'; 
+// ==========================================
 
 let movies = [];
 let performers = [];
@@ -577,7 +580,8 @@ let selectedMovie = null;
 let activeTagFilter = '';
 let adAutoSlideInterval = null;
 let currentAdIndex = 0;
-let trendingDisplayLimit = 15; // Starting with 15 videos limit
+let trendingStartIndex = 0;
+const ITEMS_PER_PAGE = 10;
 
 function showSkeletonLoading() {
   const promoWrapper = document.getElementById("promoBannerWrapper");
@@ -589,15 +593,21 @@ function showSkeletonLoading() {
   promoWrapper.style.display = "block";
   promoWrapper.innerHTML = `
     <div class="ads-slider-wrapper">
-      <div class="promo-banner skeleton" style="height: 290px;"></div>
+      <div class="promo-banner skeleton" style="height: 250px;"></div>
     </div>
     <div class="fixed-categories-overlay">
+      <div class="badge skeleton" style="width: 45px; height: 26px;"></div>
       <div class="badge skeleton" style="width: 55px; height: 26px;"></div>
-      <div class="badge skeleton" style="width: 65px; height: 26px;"></div>
+      <div class="badge skeleton" style="width: 60px; height: 26px;"></div>
+      <div class="badge skeleton" style="width: 50px; height: 26px;"></div>
+      <div class="badge skeleton" style="width: 55px; height: 26px;"></div>
     </div>
   `;
 
   performersRow.innerHTML = `
+    <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
+    <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
+    <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
     <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
     <div class="performer-item"><div class="avatar-box skeleton" style="width:62px; height:62px; border-radius:50%;"></div><div class="skeleton-box skeleton" style="width:45px; height:10px; border-radius:4px;"></div></div>
   `;
@@ -606,6 +616,7 @@ function showSkeletonLoading() {
     <section class="section">
       <div class="section-header"><div class="skeleton-box skeleton" style="width:130px; height:18px; border-radius:4px;"></div></div>
       <div class="vertical-video-list">
+        <div class="vertical-video-item"><div class="vertical-poster-box skeleton"></div><div class="skeleton-box skeleton" style="width:80%; height:12px; margin-top:6px; border-radius:4px;"></div></div>
         <div class="vertical-video-item"><div class="vertical-poster-box skeleton"></div><div class="skeleton-box skeleton" style="width:80%; height:12px; margin-top:6px; border-radius:4px;"></div></div>
       </div>
     </section>
@@ -629,11 +640,10 @@ function showNetworkErrorState() {
   categoriesMain.style.display = "none";
   
   randomContainer.innerHTML = `
-    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; text-align:center;">
-      <div style="font-size:40px; margin-bottom:12px;">📡</div>
-      <h3 style="font-size:16px; font-weight:bold; margin-bottom:6px; color:var(--text-color);">No Internet Connection</h3>
-      <p style="font-size:12px; color:var(--subtext-color); margin-bottom:16px;">Please check your network and try again.</p>
-      <button onclick="loadAllData()" style="padding:10px 20px; background:var(--accent-color); color:white; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:13px;">Retry</button>
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:50px 20px; text-align:center;">
+      <div style="font-size:40px; margin-bottom:12px;">⚠️</div>
+      <h3 style="font-size:16px; font-weight:bold; margin-bottom:6px; color:var(--text-color);">Connection Error</h3>
+      <p style="font-size:12px; color:var(--subtext-color);">Please check your Supabase tables and RLS policies.</p>
     </div>
   `;
 }
@@ -673,7 +683,7 @@ async function loadAllData() {
     ]);
 
     if (!resVideos.ok || !resPerformers.ok) {
-      throw new Error("Network response error");
+      throw new Error("Fetch Failed");
     }
 
     movies = await resVideos.json();
@@ -741,15 +751,14 @@ function toggleSidebar() {
   const overlay = document.getElementById("sidebarOverlay");
   if (sidebar.classList.contains("active")) {
     sidebar.classList.remove("active");
-    overlay.style.display = "none";
+    overlay.classList.remove("active");
   } else {
     sidebar.classList.add("active");
-    overlay.style.display = "block";
+    overlay.classList.add("active");
   }
 }
 
 function openAdminSecretly() {
-  toggleSidebar();
   const pin = prompt("Enter PIN:");
   if(pin === "7890") {
     document.getElementById("adminPanel").classList.add("active");
@@ -764,12 +773,17 @@ function closeAdmin(){ document.getElementById("adminPanel").classList.remove("a
 function toggleAccordion(bodyId, iconId){
   const body = document.getElementById(bodyId);
   const icon = document.getElementById(iconId);
+  
   if(body.style.display === "block"){
     body.style.display = "none";
     icon.textContent = "▼";
   } else {
     body.style.display = "block";
     icon.textContent = "▲";
+    
+    setTimeout(() => {
+      body.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
   }
 }
 
@@ -971,7 +985,7 @@ function showAllHomeMovies(){
   closeCategoryPage();
   closeActorProfilePage();
   activeTagFilter = '';
-  trendingDisplayLimit = 15; // Reset limit on Home click
+  trendingStartIndex = 0;
   renderAdsBanner();
   startAutoSlideAds();
   renderMovies();
@@ -994,7 +1008,6 @@ function renderMovies(){
     });
   }
 
-  // 1. TRENDING VIDEOS (Limited to trendingDisplayLimit with Next Button)
   if (listToDisplay.length > 0) {
     const randomSection = document.createElement("section");
     randomSection.className = "section";
@@ -1012,26 +1025,42 @@ function renderMovies(){
     const verticalList = document.createElement("div");
     verticalList.className = "vertical-video-list";
 
-    const slicedMovies = listToDisplay.slice(0, trendingDisplayLimit);
+    const slicedMovies = listToDisplay.slice(trendingStartIndex, trendingStartIndex + ITEMS_PER_PAGE);
     slicedMovies.forEach(movie => {
       verticalList.appendChild(createVerticalCard(movie));
     });
 
     randomSection.appendChild(verticalList);
 
-    // Add Next Button if there are more movies to show
-    if (trendingDisplayLimit < listToDisplay.length) {
+    if (listToDisplay.length > ITEMS_PER_PAGE) {
       const paginationDiv = document.createElement("div");
       paginationDiv.className = "pagination-container";
       
+      const prevBtn = document.createElement("button");
+      prevBtn.className = "page-btn";
+      prevBtn.textContent = "‹ Previous";
+      prevBtn.disabled = trendingStartIndex === 0;
+      prevBtn.onclick = function() {
+        if (trendingStartIndex >= ITEMS_PER_PAGE) {
+          trendingStartIndex -= ITEMS_PER_PAGE;
+          renderMovies();
+          window.scrollTo({top: 250, behavior: 'smooth'});
+        }
+      };
+
       const nextBtn = document.createElement("button");
-      nextBtn.className = "next-page-btn";
+      nextBtn.className = "page-btn";
       nextBtn.textContent = "Next ›";
+      nextBtn.disabled = trendingStartIndex + ITEMS_PER_PAGE >= listToDisplay.length;
       nextBtn.onclick = function() {
-        trendingDisplayLimit += 15;
-        renderMovies();
+        if (trendingStartIndex + ITEMS_PER_PAGE < listToDisplay.length) {
+          trendingStartIndex += ITEMS_PER_PAGE;
+          renderMovies();
+          window.scrollTo({top: 250, behavior: 'smooth'});
+        }
       };
       
+      paginationDiv.appendChild(prevBtn);
       paginationDiv.appendChild(nextBtn);
       randomSection.appendChild(paginationDiv);
     }
@@ -1039,7 +1068,6 @@ function renderMovies(){
     randomContainer.appendChild(randomSection);
   }
 
-  // 2. CATEGORIES SECTIONS (Horizontal Row)
   let allCategories = [...new Set(listToDisplay.map(m => m.category ? m.category.trim() : "General"))];
 
   if (allCategories.length > 0) {
@@ -1057,7 +1085,6 @@ function renderMovies(){
   }
 }
 
-/* Category Card - Name overlayed directly on Image, clicking opens category page */
 function createCategoryCard(categoryName, sampleMovie) {
   const card = document.createElement("div");
   card.className = "movie";
@@ -1361,7 +1388,7 @@ function shareVideo(){
 
 function filterByTag(tag) {
   activeTagFilter = tag;
-  trendingDisplayLimit = 15; // Reset limit on tag filter change
+  trendingStartIndex = 0;
   renderFixedOverlayTags();
   renderMovies();
   window.scrollTo({top:0, behavior:'smooth'});
@@ -1635,7 +1662,7 @@ function renderAdmin(){
 
   const adList = document.getElementById("adminAdsList");
   adList.innerHTML = "";
-  ads.forEach(item => {
+  ads.length === 0 ? adList.innerHTML = '<small style="color:var(--subtext-color);">No banners available.</small>' : ads.forEach(item => {
     const div = document.createElement("div");
     div.className = "adminItem";
     div.innerHTML = `
