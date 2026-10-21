@@ -354,8 +354,9 @@ header{
 .category-page.active, .actor-profile-page.active { display: block; }
 .category-header{ height:65px; display:flex; align-items:center; gap:15px; padding:0 15px; background:var(--glass-header); border-bottom:1px solid var(--glass-border); position:sticky; top:0; z-index:10; backdrop-filter: blur(16px); }
 .back-btn{ background:none; border:none; color:var(--text-color); font-size:22px; cursor:pointer; }
-.grid-container{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; padding:15px; width:100%; }
-.grid-movie{ cursor:pointer; width:100%; display: flex; flex-direction: column; }
+
+.grid-container{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; padding:15px; width:100%; box-sizing: border-box; }
+.grid-movie{ cursor:pointer; width:100%; display: flex; flex-direction: column; overflow: hidden; }
 .grid-poster { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
 
 .actor-profile-banner { position: relative; width: 100%; height: 220px; background: var(--glass-bg); overflow: hidden; box-shadow: var(--glass-shadow); }
@@ -380,6 +381,16 @@ header{
 .btn-action{ flex:1; padding:12px; border:0; border-radius:12px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none; }
 .watch-btn{ background:var(--accent-color); color:#fff; }
 .modal-suggestions-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; color: var(--text-color); }
+
+/* Recommended grid specific fix */
+.recommend-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin-top: 10px !important;
+  box-sizing: border-box !important;
+}
 
 .admin{ position:fixed; inset:0; display:none; background:var(--bg-gradient); z-index:1001; overflow-y:auto; flex-direction: column; -webkit-overflow-scrolling: touch; }
 .admin.active { display: flex; }
@@ -509,7 +520,7 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
         <button class="btn-action" style="background:var(--glass-bg); color:var(--text-color); flex: 0.4; border:1px solid var(--glass-border);" onclick="shareVideo()">🔗 Share</button>
       </div>
       <div class="modal-suggestions-title">Recommended Videos</div>
-      <div id="modalSuggestionsGrid" class="grid-container" style="padding:0; margin-top:10px;"></div>
+      <div id="modalSuggestionsGrid" class="recommend-grid"></div>
     </div>
   </div>
 </div>
@@ -528,7 +539,7 @@ footer{ text-align:center; color:var(--subtext-color); padding:30px; font-size:1
       <div id="secMovie" class="accordion-body">
         <input type="hidden" id="editMovieId">
         <div class="group"><label>Video Title</label><input id="movieTitle" placeholder="Title"></div>
-        <div class="group"><label>Bunny.net / Direct MP4 / M3U8 Link</label><textarea id="movieLink" placeholder="Paste Direct Link..."></textarea></div>
+        <div class="group"><label>AdultEmbed / Direct MP4 / M3U8 / Embed Code</label><textarea id="movieLink" placeholder="Paste Embed URL or <iframe...> code"></textarea></div>
         <div class="group"><label>Category Name</label><input id="movieCategory" placeholder="e.g. Movies, Series..."></div>
         <div class="group"><label>Tags (Comma separated)</label><input id="movieTags" placeholder="e.g. HD, 4K, Popular"></div>
         <div class="group"><label>Actor Name</label><input id="movieActor" list="actorSuggestions" placeholder="Actor Name"><datalist id="actorSuggestions"></datalist></div>
@@ -645,7 +656,7 @@ function showSkeletonLoading() {
       <div class="badge skeleton" style="width: 55px; height: 26px;"></div>
       <div class="badge skeleton" style="width: 60px; height: 26px;"></div>
       <div class="badge skeleton" style="width: 50px; height: 26px;"></div>
-      <div class="badge skeleton" style="width: 55px; height: 26px;"></div>
+      <div class="badge skeleton" style="width: 50px; height: 26px;"></div>
     </div>
   `;
 
